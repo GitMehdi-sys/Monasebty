@@ -1,122 +1,100 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './SearchBar.css';
-
-const SearchBar = ({ onSearch, trendingSearches }) => {
+import { useId, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiSearch, FiMapPin, FiGrid, FiArrowRight, FiX } from "react-icons/fi";
+import "./SearchBar.css";
+const categories = ["Wedding Venues", "Catering", "Photographers"];
+export default function SearchBar({ onSearch }) {
+  const [category, setCategory] = useState("");
+  const [city, setCity] = useState("Laayoune");
+  const [query, setQuery] = useState("");
+  const [byName, setByName] = useState(false);
+  const id = useId();
+  const input = useRef(null);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('serviceCity');
-  const [service, setService] = useState('');
-  const [city, setCity] = useState('');
-  const [name, setName] = useState('');
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setService('');
-    setCity('');
-    setName('');
-  };
-
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    let query = {};
-    if (activeTab === 'serviceCity' && service && city) {
-      query = { category: service, city };
-    } else if (activeTab === 'nameSearch' && name) {
-      query = { query: name };
-    } else {
-      alert('Please fill in the required fields.');
-      return;
-    }
-    navigate(`/services?${new URLSearchParams(query).toString()}`);
-    onSearch(query);
+    const params = {};
+    if (category) params.category = category;
+    if (city) params.city = city;
+    if (byName && query.trim()) params.query = query.trim();
+    if (onSearch) onSearch(params);
+    else navigate(`/services?${new URLSearchParams(params)}`);
   };
-
-  const handleTrendingClick = (search) => {
-    const path = search.type === 'service' 
-      ? `/services/${search.category}/${search.id}` 
-      : `/cards/${search.id}`;
-    navigate(path);
-  };
-
   return (
-    <div className="searchBox">
-      <div className="searchTabs">
-        <button
-          className={`tabBtn ${activeTab === 'serviceCity' ? 'active' : ''}`}
-          onClick={() => handleTabChange('serviceCity')}
-        >
-          Service & City
-        </button>
-        <button
-          className={`tabBtn ${activeTab === 'nameSearch' ? 'active' : ''}`}
-          onClick={() => handleTabChange('nameSearch')}
-        >
-          Search by Name
-        </button>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div
-          className="searchFields"
-          style={{ display: activeTab === 'serviceCity' ? 'flex' : 'none' }}
-          id="serviceCity"
-        >
-          <div className="searchField">
-            <select value={service} onChange={(e) => setService(e.target.value)}>
-              <option value="">Select Service</option>
-              <option value="Wedding Venues">Wedding Venues</option>
-              <option value="Photographers">Photographers</option>
-              <option value="Bridal Makeup">Bridal Makeup</option>
-              <option value="Henna Artists">Henna Artists</option>
-              <option value="Bridal Wear">Bridal Wear</option>
-              <option value="Car Rental">Car Rental</option>
-              <option value="Wedding Cards">Wedding Cards</option>
+    <div className="ew-search">
+      <form className="ew-search-form" onSubmit={submit} noValidate>
+        {byName ? (
+          <div className="ew-search-field ew-search-name">
+            <FiSearch aria-hidden="true" />
+            <div>
+              <label htmlFor={`${id}-query`}>Who are you looking for?</label>
+              <div className="ew-search-input">
+                <input
+                  ref={input}
+                  id={`${id}-query`}
+                  placeholder="Vendor name or keyword"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {query && (
+                  <button
+                    type="button"
+                    aria-label="Clear vendor search"
+                    onClick={() => {
+                      setQuery("");
+                      input.current?.focus();
+                    }}
+                  >
+                    <FiX />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="ew-search-field">
+            <FiGrid aria-hidden="true" />
+            <div>
+              <label htmlFor={`${id}-category`}>I'm looking for</label>
+              <select
+                id={`${id}-category`}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="">All wedding vendors</option>
+                {categories.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+        <div className="ew-search-field ew-search-city">
+          <FiMapPin aria-hidden="true" />
+          <div>
+            <label htmlFor={`${id}-city`}>Where's the celebration?</label>
+            <select
+              id={`${id}-city`}
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            >
+              {["Laayoune"].map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
           </div>
-          <span className="search-divider"></span>
-          <div className="searchField">
-            <select value={city} onChange={(e) => setCity(e.target.value)}>
-              <option value="">Select City</option>
-              <option value="Lahore">Lahore</option>
-              <option value="Islamabad">Islamabad</option>
-              <option value="Karachi">Karachi</option>
-              <option value="Rawalpindi">Rawalpindi</option>
-            </select>
-          </div>
-          <button type="submit" className="searchBtn">Search</button>
         </div>
-        <div
-          className="nameSearch"
-          style={{
-            display: activeTab === 'nameSearch' ? 'flex' : 'none',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '10px'
-          }}
-          id="nameSearch"
-        >
-          <input
-            type="text"
-            placeholder="Search by name (e.g., Wedding Venues, Photographers)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button type="submit" className="searchBtn">Search</button>
-        </div>
+        <button className="ew-button ew-search-submit" type="submit">
+          Find my vendors <FiArrowRight aria-hidden="true" />
+        </button>
       </form>
-      <div className="trendingSearches">
-        <span className="trendingLabel">Popular Searches:</span>
-        {trendingSearches.slice(0, 5).map((search) => (
-          <span
-            key={search.id}
-            className="trendingItem"
-            onClick={() => handleTrendingClick(search)}
-          >
-            {search.name}
-          </span>
-        ))}
+      <div className="ew-search-helper">
+        <span>Made for your kind of celebration.</span>
+        <button type="button" onClick={() => setByName(!byName)}>
+          {byName ? "Browse by category" : "Know a name? Search for it"}{" "}
+          <span aria-hidden="true">↗</span>
+        </button>
       </div>
     </div>
   );
-};
-
-export default SearchBar;
+}

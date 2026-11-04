@@ -1,93 +1,125 @@
-"use client"
+import { BETA_MODE } from "./data/laayoune";
+("use client");
 
-import React, { lazy, Suspense } from "react"
-import { Routes, Route, Navigate, useLocation } from "react-router-dom"
-import { useAuth } from "./context/AuthContext"
-import SignIn from "./components/SignIn"
-import SignUp from "./components/SignUp"
-import NotFound from "./components/NotFound"
-import Loading from "./components/Loading"
-import ContactUs from "./pages/ContactUs"
-import AboutUs from "./pages/AboutUs"
+import React, { lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+import NotFound from "./components/NotFound";
+import Loading from "./components/Loading";
+import ContactUs from "./pages/ContactUs";
+import AboutUs from "./pages/AboutUs";
+import PreviewGateway from "./components/PreviewGateway";
 
-const Dashboard = lazy(() => import("./components/Dashboard"))
-const AdminLogin = lazy(() => import("./components/AdminLogin"))
-const AdminResetRequest = lazy(() => import("./components/AdminResetRequest"))
-const AdminResetPassword = lazy(() => import("./components/AdminResetPassword"))
-const AdminDashboard = lazy(() => import("./components/AdminDashboard"))
-const VendorCategoryType = lazy(() => import("./components/VendorCategoryType"))
-const VendorSignup = lazy(() => import("./components/VendorSignup"))
-const VendorUnderReview = lazy(() => import("./components/VendorUnderReview"))
-const VendorLogin = lazy(() => import("./components/VendorLogin"))
-const VendorResetRequest = lazy(() => import("./components/VendorResetRequest"))
-const VendorResetPassword = lazy(() => import("./components/VendorResetPassword"))
-const VendorDashboard = lazy(() => import("./components/VendorDashboard"))
-const AddService = lazy(() => import("./components/AddService"))
-const WeddingServicesForm = lazy(() => import("./components/WeddingServicesForm"))
-const WeddingCardForm = lazy(() => import("./components/WeddingCardForm"))
-const CardEditor = lazy(() => import("./components/CardEditor"))
-const PublicEditor = lazy(() => import("./pages/PublicEditor")) // Added
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const AdminLogin = lazy(() => import("./components/AdminLogin"));
+const AdminResetRequest = lazy(() => import("./components/AdminResetRequest"));
+const AdminResetPassword = lazy(
+  () => import("./components/AdminResetPassword"),
+);
+const AdminDashboard = lazy(() => import("./components/AdminDashboard"));
+const VendorCategoryType = lazy(
+  () => import("./components/VendorCategoryType"),
+);
+const VendorSignup = lazy(() => import("./components/VendorSignup"));
+const VendorUnderReview = lazy(() => import("./components/VendorUnderReview"));
+const VendorLogin = lazy(() => import("./components/VendorLogin"));
+const VendorResetRequest = lazy(
+  () => import("./components/VendorResetRequest"),
+);
+const VendorResetPassword = lazy(
+  () => import("./components/VendorResetPassword"),
+);
+const VendorDashboard = lazy(() => import("./components/VendorDashboard"));
+const AddService = lazy(() => import("./components/AddService"));
+const WeddingServicesForm = lazy(
+  () => import("./components/WeddingServicesForm"),
+);
+const WeddingCardForm = lazy(() => import("./components/WeddingCardForm"));
+const CardEditor = lazy(() => import("./components/CardEditor"));
+const PublicEditor = lazy(() => import("./pages/PublicEditor")); // Added
 
-import Home from "./pages/Home"
-const Listings = lazy(() => import("./pages/Listings"))
-const ServiceDetails = lazy(() => import("./pages/ServiceDetails"))
-const WeddingCardsDetails = lazy(() => import("./pages/WeddingCardsDetails"))
-const Deals = lazy(() => import("./pages/Deals"))
-const Chatbot = lazy(() => import("./pages/Chatbot"))
+import Home from "./pages/Home";
+const Listings = lazy(() => import("./pages/Listings"));
+const ServiceDetails = lazy(() =>
+  BETA_MODE
+    ? import("./pages/BetaVendorDetails")
+    : import("./pages/ServiceDetails"),
+);
+const WeddingCardsDetails = lazy(() =>
+  BETA_MODE
+    ? import("./pages/BetaVendorDetails")
+    : import("./pages/WeddingCardsDetails"),
+);
+const Deals = lazy(() => import("./pages/Deals"));
+const Chatbot = lazy(() => import("./pages/Chatbot"));
 
 export const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, isLoading } = useAuth()
-  const location = useLocation()
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
-  if (isLoading) return <Loading />
+  if (isLoading) return <Loading />;
   if (!user || !allowedRoles.includes(user.role)) {
     const redirectTo = allowedRoles.includes("user")
       ? "/signin"
       : allowedRoles.includes("vendor")
         ? "/vendor/login"
-        : "/admin/login"
-    return <Navigate to={redirectTo} state={{ from: location }} replace />
+        : "/admin/login";
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
-  return children
-}
+  return children;
+};
 
 export const ProtectedResetRoute = ({ children, type }) => {
-  const { checkResetToken, checkVendorResetToken } = useAuth()
-  const [isValid, setIsValid] = React.useState(null)
-  const checkFunction = type === "vendor" ? checkVendorResetToken : checkResetToken
+  const { checkResetToken, checkVendorResetToken } = useAuth();
+  const [isValid, setIsValid] = React.useState(null);
+  const checkFunction =
+    type === "vendor" ? checkVendorResetToken : checkResetToken;
 
   React.useEffect(() => {
     const validate = async () => {
-      const valid = await checkFunction()
-      setIsValid(valid)
-    }
-    validate()
-  }, [checkFunction])
+      if (BETA_MODE) {
+        setIsValid(false);
+        return;
+      }
+      const valid = await checkFunction();
+      setIsValid(valid);
+    };
+    validate();
+  }, [checkFunction]);
 
-  if (isValid === null) return <Loading />
+  if (isValid === null) return <Loading />;
   return isValid ? (
     children
   ) : (
-    <Navigate to={type === "vendor" ? "/vendor/reset-request" : "/admin/reset-request"} replace />
-  )
-}
+    <Navigate
+      to={type === "vendor" ? "/vendor/reset-request" : "/admin/reset-request"}
+      replace
+    />
+  );
+};
 
 export const ProtectedVendorSignupRoute = ({ children }) => {
-  const location = useLocation()
-  const categoryFromState = location.state?.category
-  const params = new URLSearchParams(location.search)
-  const categoryFromParams = params.get("category")
-  const hasCategory = categoryFromState || categoryFromParams
+  const location = useLocation();
+  const categoryFromState = location.state?.category;
+  const params = new URLSearchParams(location.search);
+  const categoryFromParams = params.get("category");
+  const hasCategory = categoryFromState || categoryFromParams;
 
-  return hasCategory ? children : <Navigate to="/vendor/category" replace />
-}
+  return hasCategory ? children : <Navigate to="/vendor/category" replace />;
+};
 
 export const ProtectedVendorReviewRoute = ({ children }) => {
-  const location = useLocation()
-  const submissionSuccess = location.state?.submissionSuccess
+  const location = useLocation();
+  const submissionSuccess = location.state?.submissionSuccess;
 
-  return submissionSuccess ? children : <Navigate to="/vendor/category" replace />
-}
+  return submissionSuccess ? (
+    children
+  ) : (
+    <Navigate to="/vendor/category" replace />
+  );
+};
 
 const AppRoutes = () => (
   <Suspense fallback={<Loading />}>
@@ -102,7 +134,14 @@ const AppRoutes = () => (
       <Route path="/deals" element={<Deals />} />
       <Route path="/contact" element={<ContactUs />} />
       <Route path="/about" element={<AboutUs />} />
-      <Route path="/chatbot" element={<Chatbot />} />
+      <Route
+        path="/chatbot"
+        element={
+          <PreviewGateway>
+            <Chatbot />
+          </PreviewGateway>
+        }
+      />
       <Route
         path="/dashboard"
         element={
@@ -111,8 +150,22 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/reset-request" element={<AdminResetRequest />} />
+      <Route
+        path="/admin/login"
+        element={
+          <PreviewGateway admin>
+            <AdminLogin />
+          </PreviewGateway>
+        }
+      />
+      <Route
+        path="/admin/reset-request"
+        element={
+          <PreviewGateway admin>
+            <AdminResetRequest />
+          </PreviewGateway>
+        }
+      />
       <Route
         path="/admin/reset-password"
         element={
@@ -142,7 +195,9 @@ const AppRoutes = () => (
         path="/vendor/signup"
         element={
           <ProtectedVendorSignupRoute>
-            <VendorSignup />
+            <PreviewGateway>
+              <VendorSignup />
+            </PreviewGateway>
           </ProtectedVendorSignupRoute>
         }
       />
@@ -154,8 +209,22 @@ const AppRoutes = () => (
           </ProtectedVendorReviewRoute>
         }
       />
-      <Route path="/vendor/login" element={<VendorLogin />} />
-      <Route path="/vendor/reset-request" element={<VendorResetRequest />} />
+      <Route
+        path="/vendor/login"
+        element={
+          <PreviewGateway>
+            <VendorLogin />
+          </PreviewGateway>
+        }
+      />
+      <Route
+        path="/vendor/reset-request"
+        element={
+          <PreviewGateway>
+            <VendorResetRequest />
+          </PreviewGateway>
+        }
+      />
       <Route
         path="/vendor/reset-password"
         element={
@@ -220,10 +289,17 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
-     <Route path="/public-editor/:cardId" element={<PublicEditor />} />
+      <Route
+        path="/public-editor/:cardId"
+        element={
+          <PreviewGateway>
+            <PublicEditor />
+          </PreviewGateway>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Suspense>
-)
+);
 
-export default AppRoutes
+export default AppRoutes;

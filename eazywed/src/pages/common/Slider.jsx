@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Slider.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Slider.css";
 
 const Slider = ({ category, data, index }) => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filteredData, setFilteredData] = useState([]);
-  const [activeLocation, setActiveLocation] = useState('Lahore');
+  const [activeLocation, setActiveLocation] = useState("Marrakech");
 
-  const locations = ['Lahore', 'Islamabad', 'Karachi'];
-  const theme = index % 2 === 0 ? 'dark' : 'light';
+  const locations = ["Marrakech", "Rabat", "Casablanca"];
+  const theme = index % 2 === 0 ? "dark" : "light";
 
   useEffect(() => {
     const filtered = data.filter((item) => {
@@ -23,12 +23,19 @@ const Slider = ({ category, data, index }) => {
   }, [activeLocation, data]);
 
   const handleSlide = (direction) => {
-    const visibleCards = window.innerWidth > 991 ? 4 : window.innerWidth > 576 ? 3 : 1;
+    const visibleCards =
+      window.innerWidth > 991 ? 4 : window.innerWidth > 576 ? 3 : 1;
     const totalCards = filteredData.length;
-    if (direction === 'next') {
-      setCurrentIndex((prev) => (prev + 1) % Math.max(1, totalCards - visibleCards + 1));
+    if (direction === "next") {
+      setCurrentIndex(
+        (prev) => (prev + 1) % Math.max(1, totalCards - visibleCards + 1),
+      );
     } else {
-      setCurrentIndex((prev) => (prev - 1 + Math.max(1, totalCards - visibleCards + 1)) % Math.max(1, totalCards - visibleCards + 1));
+      setCurrentIndex(
+        (prev) =>
+          (prev - 1 + Math.max(1, totalCards - visibleCards + 1)) %
+          Math.max(1, totalCards - visibleCards + 1),
+      );
     }
   };
 
@@ -38,22 +45,31 @@ const Slider = ({ category, data, index }) => {
   };
 
   const handleCardClick = (item) => {
-    const path = item.type === 'service' ? `/services/${item.category.toLowerCase()}/${item.id}` : `/cards/${item.id}`;
+    const path =
+      item.type === "service"
+        ? `/services/${item.category.toLowerCase()}/${item.id}`
+        : `/cards/${item.id}`;
     navigate(path);
   };
 
   const getListingPath = () => {
-    if (category === 'Discounts') return '/deals';
+    if (category === "Discounts") return "/deals";
     return `/services?category=${category}`;
   };
 
   return (
-    <div className={`slider-wrapper ${theme === 'dark' ? 'slider-dark' : 'slider-light'}`}>
+    <div
+      className={`slider-wrapper ${theme === "dark" ? "slider-dark" : "slider-light"}`}
+    >
       <div className="container">
         <section className="slider-section">
           <div className="slider-header">
             <h2 className="slider-title">
-              {category === 'Discounts' ? 'Exclusive Deals & Discounts' : category === 'Recommendations' ? 'Recommended for You' : `Top ${category} Services`}
+              {category === "Discounts"
+                ? "Exclusive Deals & Discounts"
+                : category === "Recommendations"
+                  ? "Recommended for You"
+                  : `Top ${category} Services`}
             </h2>
             <a
               href="#"
@@ -71,7 +87,7 @@ const Slider = ({ category, data, index }) => {
               <a
                 key={loc}
                 href="#"
-                className={activeLocation === loc ? 'active' : ''}
+                className={activeLocation === loc ? "active" : ""}
                 onClick={(e) => {
                   e.preventDefault();
                   handleLocationChange(loc);
@@ -84,19 +100,31 @@ const Slider = ({ category, data, index }) => {
           <div className="slider-container">
             <div
               className="slider-track"
-              style={{ transform: `translateX(-${currentIndex * (100 / (window.innerWidth > 991 ? 4 : window.innerWidth > 576 ? 3 : 1))}%)` }}
+              style={{
+                transform: `translateX(-${currentIndex * (100 / (window.innerWidth > 991 ? 4 : window.innerWidth > 576 ? 3 : 1))}%)`,
+              }}
             >
               {filteredData.map((item) => (
-                <div key={item.id} className="slider-card" onClick={() => handleCardClick(item)}>
+                <div
+                  key={item.id}
+                  className="slider-card"
+                  onClick={() => handleCardClick(item)}
+                >
                   <div className="card-image">
-                    <img src={item.image || 'assets/images/wedding-venues.jpg'} alt={item.title} />
-                    {item.discount && <div className="discount-label">{item.discount}</div>}
+                    <img
+                      src={item.image || "assets/images/wedding-venues.jpg"}
+                      alt={item.title}
+                    />
+                    {item.discount && (
+                      <div className="discount-label">{item.discount}</div>
+                    )}
                   </div>
                   <div className="card-content">
                     <div className="card-title">{item.title}</div>
                     <div className="card-details">
                       <div className="card-rating">
-                        <i className="fas fa-star"></i> {item.rating} ({item.reviewCount})
+                        <i className="fas fa-star"></i> {item.rating} (
+                        {item.reviewCount})
                       </div>
                       <div className="card-location">
                         <i className="fas fa-map-marker-alt"></i> {item.city}
@@ -108,10 +136,10 @@ const Slider = ({ category, data, index }) => {
             </div>
           </div>
           <div className="slider-buttons">
-            <button className="slider-btn" onClick={() => handleSlide('prev')}>
+            <button className="slider-btn" onClick={() => handleSlide("prev")}>
               <i className="fas fa-arrow-left"></i>
             </button>
-            <button className="slider-btn" onClick={() => handleSlide('next')}>
+            <button className="slider-btn" onClick={() => handleSlide("next")}>
               <i className="fas fa-arrow-right"></i>
             </button>
           </div>
