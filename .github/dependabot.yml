@@ -1,24 +1,26 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
 
-  - package-ecosystem: npm
-    directory: /backend
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/backend"
+      - "/eazywed"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: "daily"
+      time: "09:00"
+      timezone: "Africa/Casablanca"
+    open-pull-requests-limit: 10
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
 
-  - package-ecosystem: npm
-    directory: /eazywed
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Africa/Casablanca"
