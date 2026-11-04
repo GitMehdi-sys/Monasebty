@@ -1,32 +1,37 @@
-
-"use client"
-
-import { useNavigate } from "react-router-dom"
-import { Button } from "react-bootstrap"
-import onboardingImg from "../assets/images/onboarding.png"
-import "../styles/admin-auth.css" // Reuse for consistency
-
-const NotFound = () => {
-  const navigate = useNavigate()
-
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import Navbar from "../pages/common/Navbar";
+import Footer from "../pages/common/Footer";
+import EstimateSidebar from "../pages/common/EstimateSidebar";
+export default function NotFound() {
+  useEffect(() => {
+    document.title = "Page not found | EazyWed";
+  }, []);
   return (
-    <div className="main-container">
-      <div className="logo-onboarding" style={{ backgroundImage: `url(${onboardingImg})` }}>
-        <h1 className="logo">EazyWed</h1>
-      </div>
-      <div className="sign-in-form">
-        <h4 style={{ color: "#D7385E" }}>404 - Page Not Found</h4>
-        <p style={{ fontFamily: "Poppins", color: "#1E314B", marginBottom: "30px" }}>
-          Oops! It seems you've wandered off the path. Let's get you back home.
+    <>
+      <Navbar />
+      <EstimateSidebar />
+      <main id="main-content" className="ew-shell ew-preview-gateway">
+        <span className="ew-eyebrow">404 · A little detour</span>
+        <h1 className="ew-page-title">
+          Let's find your way
+          <br />
+          <em>back to the celebration.</em>
+        </h1>
+        <p>
+          This page may have moved, or the address may be incomplete. Your next
+          great wedding find is still waiting.
         </p>
-        <div className="back-forth-buttons" style={{ justifyContent: "center" }}>
-          <div className="submit-continue-button">
-            <Button onClick={() => navigate("/")}>Go to Home</Button>
-          </div>
+        <div>
+          <Link className="ew-button" to="/services">
+            Explore wedding vendors ↗
+          </Link>
+          <Link className="ew-text-link" to="/">
+            Back to home
+          </Link>
         </div>
-      </div>
-    </div>
-  )
+      </main>
+      <Footer />
+    </>
+  );
 }
-
-export default NotFound

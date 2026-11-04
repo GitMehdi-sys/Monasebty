@@ -5,7 +5,9 @@ import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import { PORT, NODE_ENV, FRONTEND_URL, DEMO_MODE, JWT_SECRET } from "./config/env.js";
+import mongoSanitize from "express-mongo-sanitize";
+import mongoose from "mongoose";
+import { PORT, NODE_ENV, FRONTEND_URL, DEMO_MODE } from "./config/env.js";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
@@ -23,12 +25,23 @@ import fs from "fs";
 import { rejectMongoOperators } from "./middleware/requestSecurity.js";
 
 dotenv.config();
+mongoose.set("sanitizeFilter", true);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000000,
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
+
+const requireTrustedOrigin = (req, res, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+
+  const origin = req.get("origin");
+  if (origin !== FRONTEND_URL) {
+    return res.status(403).json({ message: "Cross-site request rejected" });
+  }
+  next();
+};
 
 async function startServer() {
   try {
@@ -42,9 +55,9 @@ async function startServer() {
     app.use(cors({ origin: FRONTEND_URL, credentials: true }));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    // Keep signed cookies verifiable if they are introduced; JWTs are still
-    // independently verified by the auth middleware before authorization.
-    app.use(cookieParser(JWT_SECRET));
+    app.use(cookieParser());
+    app.use(mongoSanitize({ replaceWith: "_" }));
+    app.use(requireTrustedOrigin);
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
     app.use(rejectMongoOperators);
 

@@ -1,76 +1,76 @@
-
-"use client"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom" // Import Link
-import { Button } from "react-bootstrap"
-import onboardingImg from "../assets/images/onboarding.png"
-import "../styles/vendor-auth.css"
-// import "../styles/admin-auth.css"
-
-const VendorCategoryType = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const navigate = useNavigate()
-
-  const categories = [
-    { id: "wedding-venues", icon: "fa-building", label: "Wedding Venues" },
-    { id: "photographers", icon: "fa-camera", label: "Photographers" },
-    { id: "bridal-makeup", icon: "fa-paint-brush", label: "Bridal Makeup" },
-    { id: "henna-artists", icon: "fa-hand-paper", label: "Henna Artists" },
-    { id: "bridal-wear", icon: "fa-person-dress", label: "Bridal Wear" },
-    { id: "wedding-invitations", icon: "fa-envelope", label: "Wedding Cards" },
-    { id: "car-rental", icon: "fa-car", label: "Car Rental" },
-  ]
-
-  const handleSelect = (categoryId) => {
-    setSelectedCategory(categoryId)
-  }
-
-  const handleContinue = () => {
-    if (selectedCategory) {
-      navigate("/vendor/signup", { state: { category: selectedCategory } })
-    }
-  }
-
-  // baseUrl is no longer needed for Link, but kept for reference if used elsewhere
-  const baseUrl = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"
-
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../pages/common/Navbar";
+import Footer from "../pages/common/Footer";
+import EstimateSidebar from "../pages/common/EstimateSidebar";
+const categories = [
+  ["wedding-venues", "Wedding venues"],
+  ["photographers", "Photography"],
+  ["bridal-makeup", "Bridal beauty"],
+  ["henna-artists", "Henna artistry"],
+  ["bridal-wear", "Caftans & bridal wear"],
+  ["wedding-invitations", "Invitations"],
+  ["car-rental", "Wedding transport"],
+];
+export default function VendorCategoryType() {
+  const [selected, setSelected] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    document.title = "List your wedding business | EazyWed Morocco";
+  }, []);
   return (
-    <div className="main-container">
-      <div className="logo-onboarding" style={{ backgroundImage: `url(${onboardingImg})` }}>
-        <h1 className="logo">EazyWed</h1>
-      </div>
-      <div className="sign-in-form">
-        <h4>Join EazyWed</h4>
-        <p>What is your line of business?</p>
-        <div className="category-type-options">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className={`category-type-card ${selectedCategory === cat.id ? "selected" : ""}`}
-              onClick={() => handleSelect(cat.id)}
-            >
-              <i className={`fas ${cat.icon}`}></i>
-              <span>{cat.label}</span>
-            </div>
-          ))}
-        </div>
-        <div className="footer-section">
-          <div className="redirect-link">
-            <Link to="/vendor/login">Already a member?</Link> {/* Replaced <a> with Link */}
+    <>
+      <Navbar />
+      <EstimateSidebar />
+      <main id="main-content" className="ew-vendor-onboard ew-shell">
+        <Link className="ew-text-link" to="/">
+          ← Back to exploring
+        </Link>
+        <span className="ew-eyebrow">For Morocco's wedding professionals</span>
+        <h1 className="ew-page-title">
+          Bring your craft
+          <br />
+          to their <em>beautiful day.</em>
+        </h1>
+        <p>Tell us what you do. We'll help you take the next step.</p>
+        <fieldset>
+          <legend>What is your line of business?</legend>
+          <div className="ew-onboard-options">
+            {categories.map(([id, label]) => (
+              <label key={id} className={selected === id ? "is-selected" : ""}>
+                <input
+                  type="radio"
+                  name="business-category"
+                  value={id}
+                  checked={selected === id}
+                  onChange={() => setSelected(id)}
+                />
+                <span>{label}</span>
+                <span aria-hidden="true">↗</span>
+              </label>
+            ))}
           </div>
-          <div className="back-forth-buttons">
-            <Button onClick={() => navigate("/")} variant="secondary">
-              Back
-            </Button>
-            <Button onClick={handleContinue} disabled={!selectedCategory} variant="primary">
-              Continue
-            </Button>
-          </div>
+        </fieldset>
+        {import.meta.env.VITE_DEMO_MODE === "true" && (
+          <p className="ew-demo-note">
+            Local preview: you can explore the categories. Business registration
+            will be available when a database is connected.
+          </p>
+        )}
+        <div className="ew-onboard-actions">
+          <Link to="/vendor/login">Already with us? Sign in</Link>
+          <button
+            className="ew-button"
+            disabled={!selected}
+            onClick={() =>
+              navigate("/vendor/signup", { state: { category: selected } })
+            }
+          >
+            Continue ↗
+          </button>
         </div>
-      </div>
-    </div>
-  )
+      </main>
+      <Footer />
+    </>
+  );
 }
-
-export default VendorCategoryType

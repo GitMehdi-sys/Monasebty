@@ -1,193 +1,211 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { Button, Modal } from "react-bootstrap"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import "../styles/dashboard.css"
-import { generateWhatsAppLink } from "../utils/whatsapp.js"
-import createAPI from "../utils/api"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Button, Modal } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/dashboard.css";
+import { generateWhatsAppLink } from "../utils/whatsapp.js";
+import createAPI from "../utils/api";
 
 const VendorDashboard = () => {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const [sidebarActive, setSidebarActive] = useState(false)
-  const [activeTab, setActiveTab] = useState("dashboard")
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarActive, setSidebarActive] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     stats: {
       services: { total: 0, published: 0, pending: 0, rejected: 0 },
       cards: { total: 0, published: 0, pending: 0, rejected: 0 },
-      bookings: { total: 0, pending: 0, confirmed: 0, completed: 0, canceled: 0 },
+      bookings: {
+        total: 0,
+        pending: 0,
+        confirmed: 0,
+        completed: 0,
+        canceled: 0,
+      },
       earnings: 0,
     },
     services: [],
     cards: [],
     bookings: [],
-  })
-  
+  });
+
   // Pagination state
   const [pagination, setPagination] = useState({
     services: { page: 1, total: 0, pages: 0 },
     cards: { page: 1, total: 0, pages: 0 },
-    bookings: { page: 1, total: 0, pages: 0 }
-  })
-  
-  const [showStatusModal, setShowStatusModal] = useState(false)
-  const [selectedBooking, setSelectedBooking] = useState(null)
-  const [newStatus, setNewStatus] = useState("")
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [deleteItem, setDeleteItem] = useState({ id: null, type: null })
+    bookings: { page: 1, total: 0, pages: 0 },
+  });
+
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState({ id: null, type: null });
 
   // Use the centralized API instance
-  const api = createAPI(navigate)
+  const api = createAPI(navigate);
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    fetchDashboardData();
+  }, []);
 
   const fetchDashboardData = async (tab = activeTab, page = 1) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // Always fetch stats for the dashboard overview
-      const statsRes = await api.get("/vendor/dashboard/stats")
-      let newData = { ...dashboardData, stats: statsRes.data }
-      let newPagination = { ...pagination }
+      const statsRes = await api.get("/vendor/dashboard/stats");
+      let newData = { ...dashboardData, stats: statsRes.data };
+      let newPagination = { ...pagination };
 
       // Fetch tab-specific data based on the current active tab
       if (tab === "services" || activeTab === "services") {
-        const servicesRes = await api.get(`/vendor/dashboard/services?page=${page}&limit=5`)
-        newData = { ...newData, services: servicesRes.data.data || servicesRes.data }
-        
+        const servicesRes = await api.get(
+          `/vendor/dashboard/services?page=${page}&limit=5`,
+        );
+        newData = {
+          ...newData,
+          services: servicesRes.data.data || servicesRes.data,
+        };
+
         // Update pagination state if the response includes pagination data
         if (servicesRes.data.pagination) {
-          newPagination.services = servicesRes.data.pagination
+          newPagination.services = servicesRes.data.pagination;
         }
       }
-      
+
       if (tab === "cards" || activeTab === "cards") {
-        const cardsRes = await api.get(`/vendor/dashboard/cards?page=${page}&limit=5`)
-        newData = { ...newData, cards: cardsRes.data.data || cardsRes.data }
-        
+        const cardsRes = await api.get(
+          `/vendor/dashboard/cards?page=${page}&limit=5`,
+        );
+        newData = { ...newData, cards: cardsRes.data.data || cardsRes.data };
+
         // Update pagination state if the response includes pagination data
         if (cardsRes.data.pagination) {
-          newPagination.cards = cardsRes.data.pagination
+          newPagination.cards = cardsRes.data.pagination;
         }
       }
-      
+
       if (tab === "bookings" || activeTab === "bookings") {
-        const bookingsRes = await api.get(`/vendor/dashboard/bookings?page=${page}&limit=5`)
-        newData = { ...newData, bookings: bookingsRes.data.data || bookingsRes.data }
-        
+        const bookingsRes = await api.get(
+          `/vendor/dashboard/bookings?page=${page}&limit=5`,
+        );
+        newData = {
+          ...newData,
+          bookings: bookingsRes.data.data || bookingsRes.data,
+        };
+
         // Update pagination state if the response includes pagination data
         if (bookingsRes.data.pagination) {
-          newPagination.bookings = bookingsRes.data.pagination
+          newPagination.bookings = bookingsRes.data.pagination;
         }
       }
 
-      setDashboardData(newData)
-      setPagination(newPagination)
+      setDashboardData(newData);
+      setPagination(newPagination);
     } catch (error) {
-      console.error(`Error fetching ${tab} data:`, error)
-      toast.error(`Failed to load ${tab} data`)
+      console.error(`Error fetching ${tab} data:`, error);
+      toast.error(`Failed to load ${tab} data`);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleLogout = async () => {
-    const success = await logout()
-    if (success) navigate("/vendor/login")
-  }
+    const success = await logout();
+    if (success) navigate("/vendor/login");
+  };
 
-  const toggleSidebar = () => setSidebarActive(!sidebarActive)
+  const toggleSidebar = () => setSidebarActive(!sidebarActive);
 
   const handleTabChange = (tab) => {
-    setActiveTab(tab)
-    fetchDashboardData(tab)
-    
+    setActiveTab(tab);
+    fetchDashboardData(tab);
+
     // Close sidebar on mobile after tab change
     if (window.innerWidth <= 768) {
-      setSidebarActive(false)
+      setSidebarActive(false);
     }
-  }
+  };
 
   const handleTabClick = (tab) => {
-    setActiveTab(tab)
-    fetchDashboardData(tab)
-  }
+    setActiveTab(tab);
+    fetchDashboardData(tab);
+  };
 
   const handleChangePage = (tab, page) => {
     // Update active tab if different
     if (tab !== activeTab) {
-      setActiveTab(tab)
+      setActiveTab(tab);
     }
     // Fetch data for the specified page
-    fetchDashboardData(tab, page)
-  }
+    fetchDashboardData(tab, page);
+  };
 
   // Service actions
   const editService = (serviceId) => {
-    navigate(`/vendor/services/edit/${serviceId}`)
-  }
+    navigate(`/vendor/services/edit/${serviceId}`);
+  };
 
   const confirmDelete = (id, type) => {
-    setDeleteItem({ id, type })
-    setShowDeleteModal(true)
-  }
+    setDeleteItem({ id, type });
+    setShowDeleteModal(true);
+  };
 
   const handleDelete = async () => {
     try {
-      if (deleteItem.type === 'service') {
-        await api.delete(`/vendor/services/${deleteItem.id}`)
-        toast.success("Service deleted successfully")
-      } else if (deleteItem.type === 'card') {
-        await api.delete(`/vendor/cards/${deleteItem.id}`)
-        toast.success("Card deleted successfully")
+      if (deleteItem.type === "service") {
+        await api.delete(`/vendor/services/${deleteItem.id}`);
+        toast.success("Service deleted successfully");
+      } else if (deleteItem.type === "card") {
+        await api.delete(`/vendor/cards/${deleteItem.id}`);
+        toast.success("Card deleted successfully");
       }
-      setShowDeleteModal(false)
-      setDeleteItem({ id: null, type: null })
-      fetchDashboardData(activeTab)
+      setShowDeleteModal(false);
+      setDeleteItem({ id: null, type: null });
+      fetchDashboardData(activeTab);
     } catch (error) {
-      console.error(`Error deleting ${deleteItem.type}:`, error)
-      toast.error(`Failed to delete ${deleteItem.type}`)
+      console.error(`Error deleting ${deleteItem.type}:`, error);
+      toast.error(`Failed to delete ${deleteItem.type}`);
     }
-  }
+  };
 
   const cancelDelete = () => {
-    setShowDeleteModal(false)
-    setDeleteItem({ id: null, type: null })
-  }
+    setShowDeleteModal(false);
+    setDeleteItem({ id: null, type: null });
+  };
 
   const deleteService = (serviceId) => {
-    confirmDelete(serviceId, 'service')
-  }
+    confirmDelete(serviceId, "service");
+  };
 
   // Card actions
   const addCard = () => {
-    navigate("/vendor/cards/add")
-  }
+    navigate("/vendor/cards/add");
+  };
 
   const editCard = (cardId) => {
-    navigate(`/vendor/cards/edit/${cardId}`)
-  }
+    navigate(`/vendor/cards/edit/${cardId}`);
+  };
 
   const deleteCard = (cardId) => {
-    confirmDelete(cardId, 'card')
-  }
+    confirmDelete(cardId, "card");
+  };
 
   // Booking actions
   const openStatusModal = (booking) => {
-    setSelectedBooking(booking)
-    setNewStatus(booking.status)
-    setShowStatusModal(true)
-  }
+    setSelectedBooking(booking);
+    setNewStatus(booking.status);
+    setShowStatusModal(true);
+  };
 
   const handleStatusChange = (e) => {
-    setNewStatus(e.target.value)
-  }
+    setNewStatus(e.target.value);
+  };
 
   const updateBookingStatus = async (bookingId, status) => {
     try {
@@ -196,10 +214,12 @@ const VendorDashboard = () => {
         toast.error("Invalid booking status");
         return;
       }
-      
+
       // Make API call
-      const response = await api.patch(`/vendor/bookings/${bookingId}/status`, { status });
-      
+      const response = await api.patch(`/vendor/bookings/${bookingId}/status`, {
+        status,
+      });
+
       if (response.data && response.data.message) {
         toast.success(`Booking status updated to ${status}`);
         setShowStatusModal(false);
@@ -209,9 +229,11 @@ const VendorDashboard = () => {
       }
     } catch (error) {
       console.error("Error updating booking status:", error);
-      toast.error(error.response?.data?.message || "Failed to update booking status");
+      toast.error(
+        error.response?.data?.message || "Failed to update booking status",
+      );
     }
-  }
+  };
 
   const confirmBooking = async (bookingId) => {
     try {
@@ -219,45 +241,51 @@ const VendorDashboard = () => {
         toast.error("Booking data not found");
         return;
       }
-      
+
       // Update booking status to confirmed
-      const updateResponse = await api.patch(`/vendor/bookings/${bookingId}/status`, {
-        status: "confirmed"
-      });
-      
+      const updateResponse = await api.patch(
+        `/vendor/bookings/${bookingId}/status`,
+        {
+          status: "confirmed",
+        },
+      );
+
       if (!updateResponse.data || !updateResponse.data.message) {
         throw new Error("Unexpected response from server");
       }
-      
+
       // Try to get user contact info for WhatsApp message
       try {
-        const userResponse = await api.get(`/vendor/bookings/${bookingId}/user`);
+        const userResponse = await api.get(
+          `/vendor/bookings/${bookingId}/user`,
+        );
         const userPhone = userResponse.data.phone;
         const serviceName = selectedBooking.service_name || "your booking";
-        
+
         // Close modal and refresh data
         setShowStatusModal(false);
         fetchDashboardData("bookings");
-        
+
         // Generate WhatsApp message and open in new tab only if we have user phone
         if (userPhone) {
           const message = `Hello! Your booking for "${serviceName}" has been confirmed. Thank you for choosing our services.`;
           const whatsappLink = generateWhatsAppLink(userPhone, message);
-          window.open(whatsappLink, '_blank');
+          window.open(whatsappLink, "_blank");
         } else {
           console.warn("User phone not available for WhatsApp message");
         }
       } catch (userError) {
         console.error("Error getting user information:", userError);
         // Even if we can't get user info, the booking was still confirmed
-        toast.warning("Booking confirmed, but couldn't retrieve user contact information");
+        toast.warning(
+          "Booking confirmed, but couldn't retrieve user contact information",
+        );
         setShowDeleteModal(false);
         fetchDashboardData("bookings");
       }
-      
+
       // Show success message regardless of whether WhatsApp message was sent
       toast.success("Booking confirmed successfully");
-      
     } catch (error) {
       console.error("Error confirming booking:", error);
       toast.error(error.response?.data?.message || "Failed to confirm booking");
@@ -265,39 +293,44 @@ const VendorDashboard = () => {
   };
 
   const handleCancel = () => {
-    setShowStatusModal(false)
-    setSelectedBooking(null)
-    setNewStatus("")
-  }
+    setShowStatusModal(false);
+    setSelectedBooking(null);
+    setNewStatus("");
+  };
 
   const chatWithUser = (phone, service) => {
     if (!phone) {
       toast.error("User phone number not available");
       return;
     }
-    
+
     try {
       // Sanitize the service name for the message
       const serviceName = service || "your booking";
-      
+
       // Create message with fallback for missing service name
       const message = `Hello! I'm reaching out regarding your booking for "${serviceName}". How can I assist you?`;
-      
+
       // Generate WhatsApp link with proper error handling
       try {
         const whatsappLink = generateWhatsAppLink(phone, message);
         // Open in a new tab
-        window.open(whatsappLink, '_blank');
+        window.open(whatsappLink, "_blank");
       } catch (linkError) {
         console.error("Error generating WhatsApp link:", linkError);
         // Fallback: provide manual instructions if link generation fails
-        toast.error("Couldn't generate WhatsApp link. Please contact the user manually at: " + phone);
+        toast.error(
+          "Couldn't generate WhatsApp link. Please contact the user manually at: " +
+            phone,
+        );
       }
     } catch (error) {
       console.error("Error opening WhatsApp chat:", error);
-      toast.error("Failed to open WhatsApp. Please try again or contact the user manually.");
+      toast.error(
+        "Failed to open WhatsApp. Please try again or contact the user manually.",
+      );
     }
-  }
+  };
 
   // Render loading state
   if (isLoading) {
@@ -306,17 +339,17 @@ const VendorDashboard = () => {
         <div className="loading-spinner"></div>
         <p className="loading-text">Loading dashboard...</p>
       </div>
-    )
+    );
   }
 
-  const { stats } = dashboardData
+  const { stats } = dashboardData;
   // Calculate total active services (pending + published)
-  const totalActive = stats.services.pending + stats.services.published
+  const totalActive = stats.services.pending + stats.services.published;
 
   // Render dashboard summary cards
   const renderSummary = () => {
-    const { stats } = dashboardData
-    
+    const { stats } = dashboardData;
+
     return (
       <div className="row">
         {/* Services Summary Card */}
@@ -328,13 +361,15 @@ const VendorDashboard = () => {
             <h3 className="counter">{stats?.services?.total || 0}</h3>
             <p className="label">Services</p>
             <div className="stats-footer">
-              <i className="fas fa-check-circle me-1 text-success"></i> {stats?.services?.published || 0} Published
+              <i className="fas fa-check-circle me-1 text-success"></i>{" "}
+              {stats?.services?.published || 0} Published
               <span className="mx-2">|</span>
-              <i className="fas fa-hourglass-half me-1 text-warning"></i> {stats?.services?.pending || 0} Pending
+              <i className="fas fa-hourglass-half me-1 text-warning"></i>{" "}
+              {stats?.services?.pending || 0} Pending
             </div>
           </div>
         </div>
-        
+
         {/* Cards Summary Card */}
         <div className="col-md-4 mb-4">
           <div className="stats-card">
@@ -344,13 +379,15 @@ const VendorDashboard = () => {
             <h3 className="counter">{stats?.cards?.total || 0}</h3>
             <p className="label">Wedding Cards</p>
             <div className="stats-footer">
-              <i className="fas fa-check-circle me-1 text-success"></i> {stats?.cards?.published || 0} Published
+              <i className="fas fa-check-circle me-1 text-success"></i>{" "}
+              {stats?.cards?.published || 0} Published
               <span className="mx-2">|</span>
-              <i className="fas fa-hourglass-half me-1 text-warning"></i> {stats?.cards?.pending || 0} Pending
+              <i className="fas fa-hourglass-half me-1 text-warning"></i>{" "}
+              {stats?.cards?.pending || 0} Pending
             </div>
           </div>
         </div>
-        
+
         {/* Bookings Summary Card */}
         <div className="col-md-4 mb-4">
           <div className="stats-card">
@@ -360,15 +397,17 @@ const VendorDashboard = () => {
             <h3 className="counter">{stats?.bookings?.total || 0}</h3>
             <p className="label">Bookings</p>
             <div className="stats-footer">
-              <i className="fas fa-check-circle me-1 text-success"></i> {stats?.bookings?.confirmed || 0} Confirmed
+              <i className="fas fa-check-circle me-1 text-success"></i>{" "}
+              {stats?.bookings?.confirmed || 0} Confirmed
               <span className="mx-2">|</span>
-              <i className="fas fa-hourglass-half me-1 text-warning"></i> {stats?.bookings?.pending || 0} Pending
+              <i className="fas fa-hourglass-half me-1 text-warning"></i>{" "}
+              {stats?.bookings?.pending || 0} Pending
             </div>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -403,11 +442,11 @@ const VendorDashboard = () => {
             </a>
           </li>
           <li>
-            <a 
+            <a
               onClick={(e) => {
                 e.preventDefault();
                 handleTabChange("cards");
-              }} 
+              }}
               className={activeTab === "cards" ? "active" : ""}
             >
               <i className="fas fa-envelope"></i> Wedding Cards
@@ -425,7 +464,7 @@ const VendorDashboard = () => {
             </a>
           </li>
           <li>
-            <a 
+            <a
               onClick={(e) => {
                 e.preventDefault();
                 handleLogout();
@@ -438,15 +477,26 @@ const VendorDashboard = () => {
       </div>
       <div className="main-content">
         {/* Dashboard */}
-        <div className={`content-section ${activeTab === "dashboard" ? "active" : ""}`}>
+        <div
+          className={`content-section ${activeTab === "dashboard" ? "active" : ""}`}
+        >
           {/* Update the styling for action buttons */}
           <div className="dashboard-header">
-            <h1>Welcome, {user?.vendorDetails?.brand_name || user?.full_name || "Vendor"}</h1>
+            <h1>
+              Welcome,{" "}
+              {user?.vendorDetails?.brand_name || user?.full_name || "Vendor"}
+            </h1>
             <div className="action-buttons">
-              <Button className="btn-primary me-2" onClick={() => navigate("/vendor/add-service")}>
+              <Button
+                className="btn-primary me-2"
+                onClick={() => navigate("/vendor/add-service")}
+              >
                 <i className="fas fa-plus-circle me-1"></i> Add Service
               </Button>
-              <Button className="btn-primary" onClick={() => navigate("/vendor/wedding-card-form")}>
+              <Button
+                className="btn-primary"
+                onClick={() => navigate("/vendor/wedding-card-form")}
+              >
                 <i className="fas fa-plus-circle me-1"></i> Add Card
               </Button>
             </div>
@@ -458,28 +508,42 @@ const VendorDashboard = () => {
               <div
                 className="status-pending"
                 style={{
-                  width: totalActive ? `${(stats.services.pending / totalActive) * 100}%` : "0%",
+                  width: totalActive
+                    ? `${(stats.services.pending / totalActive) * 100}%`
+                    : "0%",
                 }}
               ></div>
               <div
                 className="status-published"
                 style={{
-                  width: totalActive ? `${(stats.services.published / totalActive) * 100}%` : "0%",
+                  width: totalActive
+                    ? `${(stats.services.published / totalActive) * 100}%`
+                    : "0%",
                 }}
               ></div>
             </div>
             <p className="status-text">
-              <span className="status-pending-text">Pending: {stats.services.pending}</span> |
-              <span className="status-published-text">Published: {stats.services.published}</span>
+              <span className="status-pending-text">
+                Pending: {stats.services.pending}
+              </span>{" "}
+              |
+              <span className="status-published-text">
+                Published: {stats.services.published}
+              </span>
             </p>
           </div>
         </div>
 
         {/* Services */}
-        <div className={`content-section ${activeTab === "services" ? "active" : ""}`}>
+        <div
+          className={`content-section ${activeTab === "services" ? "active" : ""}`}
+        >
           <div className="dashboard-header">
             <h1>Services</h1>
-            <Button className="btn-primary" onClick={() => navigate("/vendor/add-service")}>
+            <Button
+              className="btn-primary"
+              onClick={() => navigate("/vendor/add-service")}
+            >
               <i className="fas fa-plus-circle me-1"></i> Add Service
             </Button>
           </div>
@@ -512,7 +576,8 @@ const VendorDashboard = () => {
                                   : "bg-danger"
                             }`}
                           >
-                            {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
+                            {service.status.charAt(0).toUpperCase() +
+                              service.status.slice(1)}
                           </span>
                         </td>
                         <td>
@@ -525,8 +590,8 @@ const VendorDashboard = () => {
                             >
                               <i className="fas fa-edit"></i>
                             </Button>
-                            <Button 
-                              variant="link" 
+                            <Button
+                              variant="link"
                               className="action-btn delete"
                               onClick={() => deleteService(service._id)}
                               title="Delete Service"
@@ -547,23 +612,37 @@ const VendorDashboard = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination Controls for Services */}
             <div className="pagination-controls mt-3">
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("services", (pagination.services?.page || 1) - 1)}
+                onClick={() =>
+                  handleChangePage(
+                    "services",
+                    (pagination.services?.page || 1) - 1,
+                  )
+                }
                 disabled={(pagination.services?.page || 1) <= 1}
               >
                 <i className="fas fa-chevron-left"></i> Previous
               </button>
               <span className="mx-2">
-                Page {pagination.services?.page || 1} of {pagination.services?.pages || 1}
+                Page {pagination.services?.page || 1} of{" "}
+                {pagination.services?.pages || 1}
               </span>
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("services", (pagination.services?.page || 1) + 1)}
-                disabled={(pagination.services?.page || 1) >= (pagination.services?.pages || 1)}
+                onClick={() =>
+                  handleChangePage(
+                    "services",
+                    (pagination.services?.page || 1) + 1,
+                  )
+                }
+                disabled={
+                  (pagination.services?.page || 1) >=
+                  (pagination.services?.pages || 1)
+                }
               >
                 Next <i className="fas fa-chevron-right"></i>
               </button>
@@ -572,11 +651,16 @@ const VendorDashboard = () => {
         </div>
 
         {/* Wedding Cards */}
-        <div className={`content-section ${activeTab === "cards" ? "active" : ""}`}>
+        <div
+          className={`content-section ${activeTab === "cards" ? "active" : ""}`}
+        >
           <div className="dashboard-header">
             <h1>Wedding Cards</h1>
             <div className="action-buttons">
-              <Button className="btn-primary" onClick={() => navigate("/vendor/wedding-card-form")}>
+              <Button
+                className="btn-primary"
+                onClick={() => navigate("/vendor/wedding-card-form")}
+              >
                 <i className="fas fa-plus-circle me-1"></i> Add Card Template
               </Button>
             </div>
@@ -614,18 +698,21 @@ const VendorDashboard = () => {
                       <tr key={card._id}>
                         <td>
                           {card.front_image ? (
-                            <img 
-                              src={card.front_image} 
-                              alt="Card Preview" 
-                              className="thumbnail-preview" 
+                            <img
+                              src={card.front_image}
+                              alt="Card Preview"
+                              className="thumbnail-preview"
                               title="Card Preview"
                             />
                           ) : (
                             <div className="no-preview">No Image</div>
                           )}
                         </td>
-                        <td>{card.type.charAt(0).toUpperCase() + card.type.slice(1)}</td>
-                        <td>PKR {card.price_per_card.toLocaleString()}</td>
+                        <td>
+                          {card.type.charAt(0).toUpperCase() +
+                            card.type.slice(1)}
+                        </td>
+                        <td>MAD {card.price_per_card.toLocaleString()}</td>
                         <td>{card.quantity_available}</td>
                         <td>
                           <span
@@ -637,7 +724,8 @@ const VendorDashboard = () => {
                                   : "bg-danger"
                             }`}
                           >
-                            {card.status.charAt(0).toUpperCase() + card.status.slice(1)}
+                            {card.status.charAt(0).toUpperCase() +
+                              card.status.slice(1)}
                           </span>
                         </td>
                         <td className="action-buttons">
@@ -650,7 +738,7 @@ const VendorDashboard = () => {
                             >
                               <i className="fas fa-edit"></i>
                             </Button>
-                            <Button 
+                            <Button
                               variant="link"
                               className="action-btn delete"
                               onClick={() => deleteCard(card._id)}
@@ -668,10 +756,12 @@ const VendorDashboard = () => {
                         <div className="empty-state">
                           <i className="fas fa-envelope-open-text empty-icon"></i>
                           <p>No wedding cards found.</p>
-                          <Button 
-                            variant="primary" 
-                            size="sm" 
-                            onClick={() => navigate("/vendor/wedding-card-form")}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() =>
+                              navigate("/vendor/wedding-card-form")
+                            }
                             className="mt-2"
                           >
                             Create Your First Card Template
@@ -683,23 +773,31 @@ const VendorDashboard = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination Controls for Cards */}
             <div className="pagination-controls mt-3">
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("cards", (pagination.cards?.page || 1) - 1)}
+                onClick={() =>
+                  handleChangePage("cards", (pagination.cards?.page || 1) - 1)
+                }
                 disabled={(pagination.cards?.page || 1) <= 1}
               >
                 <i className="fas fa-chevron-left"></i> Previous
               </button>
               <span className="mx-2">
-                Page {pagination.cards?.page || 1} of {pagination.cards?.pages || 1}
+                Page {pagination.cards?.page || 1} of{" "}
+                {pagination.cards?.pages || 1}
               </span>
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("cards", (pagination.cards?.page || 1) + 1)}
-                disabled={(pagination.cards?.page || 1) >= (pagination.cards?.pages || 1)}
+                onClick={() =>
+                  handleChangePage("cards", (pagination.cards?.page || 1) + 1)
+                }
+                disabled={
+                  (pagination.cards?.page || 1) >=
+                  (pagination.cards?.pages || 1)
+                }
               >
                 Next <i className="fas fa-chevron-right"></i>
               </button>
@@ -708,7 +806,9 @@ const VendorDashboard = () => {
         </div>
 
         {/* Bookings */}
-        <div className={`content-section ${activeTab === "bookings" ? "active" : ""}`}>
+        <div
+          className={`content-section ${activeTab === "bookings" ? "active" : ""}`}
+        >
           <div className="dashboard-header">
             <h1>Bookings</h1>
           </div>
@@ -744,22 +844,28 @@ const VendorDashboard = () => {
                                     : "bg-danger"
                             }`}
                           >
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            {booking.status.charAt(0).toUpperCase() +
+                              booking.status.slice(1)}
                           </span>
                         </td>
-                        <td>PKR {booking.price?.toLocaleString() || "N/A"}</td>
+                        <td>MAD {booking.price?.toLocaleString() || "N/A"}</td>
                         <td>
                           <div className="action-icons">
                             <Button
                               variant="link"
                               className="action-btn chat"
-                              onClick={() => chatWithUser(booking.user_phone, booking.service_name)}
+                              onClick={() =>
+                                chatWithUser(
+                                  booking.user_phone,
+                                  booking.service_name,
+                                )
+                              }
                               title="Chat with User"
                             >
                               <i className="fab fa-whatsapp"></i>
                             </Button>
-                            <Button 
-                              variant="link" 
+                            <Button
+                              variant="link"
                               className="action-btn edit"
                               onClick={() => openStatusModal(booking)}
                               title="Update Status"
@@ -780,23 +886,37 @@ const VendorDashboard = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination Controls for Bookings */}
             <div className="pagination-controls mt-3">
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("bookings", (pagination.bookings?.page || 1) - 1)}
+                onClick={() =>
+                  handleChangePage(
+                    "bookings",
+                    (pagination.bookings?.page || 1) - 1,
+                  )
+                }
                 disabled={(pagination.bookings?.page || 1) <= 1}
               >
                 <i className="fas fa-chevron-left"></i> Previous
               </button>
               <span className="mx-2">
-                Page {pagination.bookings?.page || 1} of {pagination.bookings?.pages || 1}
+                Page {pagination.bookings?.page || 1} of{" "}
+                {pagination.bookings?.pages || 1}
               </span>
-              <button 
+              <button
                 className="pagination-btn"
-                onClick={() => handleChangePage("bookings", (pagination.bookings?.page || 1) + 1)}
-                disabled={(pagination.bookings?.page || 1) >= (pagination.bookings?.pages || 1)}
+                onClick={() =>
+                  handleChangePage(
+                    "bookings",
+                    (pagination.bookings?.page || 1) + 1,
+                  )
+                }
+                disabled={
+                  (pagination.bookings?.page || 1) >=
+                  (pagination.bookings?.pages || 1)
+                }
               >
                 Next <i className="fas fa-chevron-right"></i>
               </button>
@@ -818,16 +938,26 @@ const VendorDashboard = () => {
             <div>
               <div className="mb-3">
                 <h5>{selectedBooking.service_name || "Unnamed Booking"}</h5>
-                <p><strong>User:</strong> {selectedBooking.user_name}</p>
-                <p><strong>Date:</strong> {new Date(selectedBooking.date || selectedBooking.date_time).toLocaleDateString()}</p>
-                <p><strong>Price:</strong> PKR {selectedBooking.price?.toLocaleString() || "N/A"}</p>
+                <p>
+                  <strong>User:</strong> {selectedBooking.user_name}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(
+                    selectedBooking.date || selectedBooking.date_time,
+                  ).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Price:</strong> MAD{" "}
+                  {selectedBooking.price?.toLocaleString() || "N/A"}
+                </p>
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Status</label>
-                <select 
-                  className="form-select" 
-                  value={newStatus} 
+                <select
+                  className="form-select"
+                  value={newStatus}
                   onChange={handleStatusChange}
                 >
                   <option value="pending">Pending</option>
@@ -835,19 +965,21 @@ const VendorDashboard = () => {
                   <option value="canceled">Canceled</option>
                 </select>
               </div>
-              
+
               <div className="d-flex justify-content-between mb-3">
-                <Button 
-                  variant="info" 
+                <Button
+                  variant="info"
                   onClick={() => {
-                    const phone = selectedBooking.user_phone || selectedBooking.user_id?.phone;
+                    const phone =
+                      selectedBooking.user_phone ||
+                      selectedBooking.user_id?.phone;
                     if (!phone) {
                       toast.error("User phone number not available");
                       return;
                     }
                     const message = `Hello! Regarding your booking for "${selectedBooking.service_name || "your booking"}" with reference ID: ${selectedBooking.booking_id}`;
                     const whatsappLink = generateWhatsAppLink(phone, message);
-                    window.open(whatsappLink, '_blank');
+                    window.open(whatsappLink, "_blank");
                   }}
                 >
                   <i className="fab fa-whatsapp me-1"></i> Contact User
@@ -860,7 +992,15 @@ const VendorDashboard = () => {
           <Button variant="secondary" onClick={handleCancel}>
             <i className="fas fa-times me-1"></i> Cancel
           </Button>
-          <Button variant="primary" onClick={() => updateBookingStatus(selectedBooking?.booking_id || selectedBooking?._id, newStatus)}>
+          <Button
+            variant="primary"
+            onClick={() =>
+              updateBookingStatus(
+                selectedBooking?.booking_id || selectedBooking?._id,
+                newStatus,
+              )
+            }
+          >
             <i className="fas fa-save me-1"></i> Update Status
           </Button>
         </Modal.Footer>
@@ -875,7 +1015,10 @@ const VendorDashboard = () => {
           </button>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this {deleteItem.type}? This action cannot be undone.</p>
+          <p>
+            Are you sure you want to delete this {deleteItem.type}? This action
+            cannot be undone.
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={cancelDelete}>
@@ -889,7 +1032,7 @@ const VendorDashboard = () => {
 
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </>
-  )
-}
+  );
+};
 
-export default VendorDashboard
+export default VendorDashboard;

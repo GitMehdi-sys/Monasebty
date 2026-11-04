@@ -125,14 +125,8 @@ const PublicEditor = () => {
 
   // Preload fonts for better rendering
   const preloadFonts = (fontList) => {
-    fontList.forEach((fontName) => {
-      if (!document.fonts.check(`12px "${fontName}"`)) {
-        const link = document.createElement("link")
-        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(" ", "+")}&display=swap`
-        link.rel = "stylesheet"
-        document.head.appendChild(link)
-      }
-    })
+    const allowedFonts = ["Poppins", "Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"]
+    setLoadedFonts((current) => [...new Set([...current, ...fontList.filter((font) => allowedFonts.includes(font))])])
   }
 
   const setupCanvas = (settings, frontImage) => {
