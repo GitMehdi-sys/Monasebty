@@ -1,0 +1,68 @@
+.ew-dialog {
+  padding: 0;
+  border: 1px solid var(--ew-border);
+  border-radius: 18px;
+  width: min(540px, calc(100% - 32px));
+  max-height: 85dvh;
+  overflow: auto;
+  color: var(--ew-ink);
+  box-shadow: 0 24px 100px #183e3533;
+}
+.ew-dialog::backdrop {
+  background: #102d27a6;
+  backdrop-filter: blur(3px);
+}
+.ew-dialog-inner {
+  padding: 28px;
+}
+.ew-dialog-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.ew-dialog-heading h2 {
+  font: 500 36px var(--ew-display);
+  margin: 0;
+}
+.ew-dialog-heading button {
+  border: 1px solid var(--ew-border);
+  background: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 27px;
+}
+.ew-estimate-item {
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ew-border);
+  font-size: 14px;
+}
+.ew-estimate-item button {
+  background: none;
+  border: 0;
+  color: var(--ew-danger);
+  min-height: 44px;
+}
+.ew-estimate-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 22px 0;
+  font-size: 18px;
+}
+.ew-estimate-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ew-estimate-empty {
+  padding: 16px 0 24px;
+}
+.ew-estimate-empty p {
+  color: var(--ew-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}

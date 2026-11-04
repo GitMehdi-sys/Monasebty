@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate, useParams, useLocation } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { Button } from "react-bootstrap"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import "../styles/card-form.css"
-import createAPI from "../utils/api"
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/card-form.css";
+import createAPI from "../utils/api";
 
 const WeddingCardForm = () => {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { cardId } = useParams()
-  const isEditMode = !!cardId
-  const [isLoading, setIsLoading] = useState(isEditMode)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [cardType, setCardType] = useState("static")
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { cardId } = useParams();
+  const isEditMode = !!cardId;
+  const [isLoading, setIsLoading] = useState(isEditMode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cardType, setCardType] = useState("static");
   const [formData, setFormData] = useState({
     type: "static",
     name: "",
@@ -27,28 +27,28 @@ const WeddingCardForm = () => {
     format: [],
     design_time: "",
     description: "",
-  })
-  const [frontImage, setFrontImage] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [cardSettings, setCardSettings] = useState(null)
+  });
+  const [frontImage, setFrontImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [cardSettings, setCardSettings] = useState(null);
 
-  const api = createAPI(navigate)
+  const api = createAPI(navigate);
 
   useEffect(() => {
     if (isEditMode && cardId) {
-      fetchCardData()
+      fetchCardData();
     }
-  }, [cardId])
+  }, [cardId]);
 
   const fetchCardData = async () => {
     try {
-      setIsLoading(true)
-      const response = await api.get(`/vendor/dashboard/cards/${cardId}`)
-      const card = response.data
+      setIsLoading(true);
+      const response = await api.get(`/vendor/dashboard/cards/${cardId}`);
+      const card = response.data;
 
-      console.log("Fetched card data:", card)
+      console.log("Fetched card data:", card);
 
-      setCardType(card.type)
+      setCardType(card.type);
 
       setFormData({
         type: card.type,
@@ -59,223 +59,233 @@ const WeddingCardForm = () => {
         format: Array.isArray(card.format) ? card.format : [card.format],
         design_time: card.design_time,
         description: card.description || "",
-      })
+      });
 
       if (card.type === "editable" && card.settings) {
-        console.log("Found card settings:", card.settings)
-        
-        let parsedSettings = card.settings
-        if (typeof card.settings === 'string') {
+        console.log("Found card settings:", card.settings);
+
+        let parsedSettings = card.settings;
+        if (typeof card.settings === "string") {
           try {
-            parsedSettings = JSON.parse(card.settings)
-            console.log("Successfully parsed settings:", parsedSettings)
+            parsedSettings = JSON.parse(card.settings);
+            console.log("Successfully parsed settings:", parsedSettings);
           } catch (error) {
-            console.error("Error parsing settings:", error)
-            toast.error("Card settings format is invalid")
+            console.error("Error parsing settings:", error);
+            toast.error("Card settings format is invalid");
           }
         }
-        
-        setCardSettings(parsedSettings)
+
+        setCardSettings(parsedSettings);
       } else {
-        console.log("No settings found or card is not editable type")
+        console.log("No settings found or card is not editable type");
       }
 
       if (card.front_image) {
-        setImagePreview(card.front_image)
+        setImagePreview(card.front_image);
       }
     } catch (error) {
-      console.error("Error fetching card data:", error)
-      toast.error("Failed to load card data. Please try again.")
+      console.error("Error fetching card data:", error);
+      toast.error("Failed to load card data. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCardTypeSelect = (type) => {
-    setCardType(type)
-    setFormData((prev) => ({ ...prev, type }))
+    setCardType(type);
+    setFormData((prev) => ({ ...prev, type }));
     if (type === "editable") {
-      setFrontImage(null)
-      setImagePreview(null)
+      setFrontImage(null);
+      setImagePreview(null);
     }
-  }
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     if (name === "format") {
-      const formatArray = value.split(",").map(item => item.trim()).filter(item => item)
-      setFormData((prev) => ({ ...prev, [name]: formatArray }))
+      const formatArray = value
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+      setFormData((prev) => ({ ...prev, [name]: formatArray }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }))
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  }
+  };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
 
-    if (!file) return
+    if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be 5MB or less")
-      return
+      toast.error("Image must be 5MB or less");
+      return;
     }
 
     if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
-      toast.error("Image must be JPEG, JPG, or PNG")
-      return
+      toast.error("Image must be JPEG, JPG, or PNG");
+      return;
     }
 
-    setFrontImage(file)
+    setFrontImage(file);
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      setImagePreview(e.target.result)
-    }
-    reader.readAsDataURL(file)
-  }
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files[0]
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
     if (file) {
-      handleImageChange({ target: { files: [file] } })
+      handleImageChange({ target: { files: [file] } });
     }
-  }
+  };
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-  }
+    e.preventDefault();
+  };
 
   const removeImage = () => {
-    setFrontImage(null)
-    setImagePreview(null)
-  }
+    setFrontImage(null);
+    setImagePreview(null);
+  };
 
   const validateForm = () => {
     if (!formData.name || formData.name.trim().length < 3) {
-      toast.error("Card name is required and must be at least 3 characters")
-      return false
+      toast.error("Card name is required and must be at least 3 characters");
+      return false;
     }
 
     if (!formData.price_per_card || formData.price_per_card <= 0) {
-      toast.error("Price per card must be greater than 0")
-      return false
+      toast.error("Price per card must be greater than 0");
+      return false;
     }
 
     if (!formData.quantity_available || formData.quantity_available <= 0) {
-      toast.error("Quantity available must be greater than 0")
-      return false
+      toast.error("Quantity available must be greater than 0");
+      return false;
     }
 
     if (!formData.city) {
-      toast.error("City is required")
-      return false
+      toast.error("City is required");
+      return false;
     }
 
     if (!formData.format || formData.format.length === 0) {
-      toast.error("Format is required")
-      return false
+      toast.error("Format is required");
+      return false;
     }
 
     if (!formData.design_time) {
-      toast.error("Design time is required")
-      return false
+      toast.error("Design time is required");
+      return false;
     }
 
     if (!formData.description) {
-      toast.error("Description is required")
-      return false
+      toast.error("Description is required");
+      return false;
     }
 
     if (cardType === "static" && !frontImage && !imagePreview) {
-      toast.error("Front image is required for static cards")
-      return false
+      toast.error("Front image is required for static cards");
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
     if (cardType === "editable") {
       const formattedData = {
         ...formData,
-        format: formData.format
-      }
+        format: formData.format,
+      };
 
       if (isEditMode) {
-        console.log("Navigating to editor with existing card settings:", cardSettings)
+        console.log(
+          "Navigating to editor with existing card settings:",
+          cardSettings,
+        );
         navigate(`/vendor/card-editor`, {
           state: {
             cardId,
             formData: formattedData,
-            cardSettings: cardSettings
-          }
-        })
+            cardSettings: cardSettings,
+          },
+        });
       } else {
         navigate(`/vendor/card-editor`, {
           state: {
-            formData: formattedData
-          }
-        })
+            formData: formattedData,
+          },
+        });
       }
-      return
+      return;
     }
 
-    const cardFormData = new FormData()
-    cardFormData.append("type", cardType)
-    cardFormData.append("name", formData.name)
-    cardFormData.append("price_per_card", formData.price_per_card)
-    cardFormData.append("quantity_available", formData.quantity_available)
-    cardFormData.append("city", formData.city)
-    cardFormData.append("design_time", formData.design_time)
-    cardFormData.append("description", formData.description)
+    const cardFormData = new FormData();
+    cardFormData.append("type", cardType);
+    cardFormData.append("name", formData.name);
+    cardFormData.append("price_per_card", formData.price_per_card);
+    cardFormData.append("quantity_available", formData.quantity_available);
+    cardFormData.append("city", formData.city);
+    cardFormData.append("design_time", formData.design_time);
+    cardFormData.append("description", formData.description);
 
-    formData.format.forEach(format => {
-      cardFormData.append("format", format)
-    })
+    formData.format.forEach((format) => {
+      cardFormData.append("format", format);
+    });
 
     if (frontImage) {
-      cardFormData.append("front_image", frontImage)
+      cardFormData.append("front_image", frontImage);
     }
 
     try {
-      setIsSubmitting(true)
-      
-      let response
+      setIsSubmitting(true);
+
+      let response;
       if (isEditMode) {
-        response = await api.put(`/vendor/dashboard/cards/${cardId}`, cardFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        toast.success("Card updated successfully")
+        response = await api.put(
+          `/vendor/dashboard/cards/${cardId}`,
+          cardFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
+        toast.success("Card updated successfully");
       } else {
         response = await api.post("/vendor/dashboard/cards", cardFormData, {
           headers: { "Content-Type": "multipart/form-data" },
-        })
-        toast.success("Card created successfully")
+        });
+        toast.success("Card created successfully");
       }
 
-      console.log("Card response:", response.data)
-      
+      console.log("Card response:", response.data);
+
       setTimeout(() => {
-        navigate("/vendor/dashboard")
-      }, 2000)
+        navigate("/vendor/dashboard");
+      }, 2000);
     } catch (error) {
-      console.error("Error submitting card:", error)
-      toast.error(error.response?.data?.message || "Failed to submit card")
+      console.error("Error submitting card:", error);
+      toast.error(error.response?.data?.message || "Failed to submit card");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const getFormatDisplayValue = () => {
-    return formData.format.join(", ")
-  }
+    return formData.format.join(", ");
+  };
 
   if (isLoading) {
     return (
@@ -283,7 +293,7 @@ const WeddingCardForm = () => {
         <div className="loading-spinner"></div>
         <p className="loading-text">Loading card data...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -362,7 +372,7 @@ const WeddingCardForm = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="price_per_card">Price Per Card (PKR) *</label>
+            <label htmlFor="price_per_card">Price Per Card (MAD) *</label>
             <input
               type="number"
               id="price_per_card"
@@ -399,9 +409,11 @@ const WeddingCardForm = () => {
               required
             >
               <option value="">Select City</option>
-              <option value="Lahore">Lahore</option>
-              <option value="Karachi">Karachi</option>
-              <option value="Islamabad">Islamabad</option>
+              <option value="Marrakech">Marrakech</option>
+              <option value="Casablanca">Casablanca</option>
+              <option value="Rabat">Rabat</option>
+              <option value="Fès">Fès</option>
+              <option value="Tanger">Tanger</option>
             </select>
           </div>
 
@@ -455,11 +467,19 @@ const WeddingCardForm = () => {
             <Button type="submit" variant="primary" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   {isEditMode ? "Updating..." : "Creating..."}
                 </>
               ) : cardType === "editable" ? (
-                isEditMode ? "Continue to Editor" : "Continue to Editor"
+                isEditMode ? (
+                  "Continue to Editor"
+                ) : (
+                  "Continue to Editor"
+                )
               ) : isEditMode ? (
                 "Update Card"
               ) : (
@@ -469,9 +489,13 @@ const WeddingCardForm = () => {
           </div>
         </form>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default WeddingCardForm
+export default WeddingCardForm;

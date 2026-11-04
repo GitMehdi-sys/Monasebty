@@ -1,0 +1,7 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["eazywed/src"],
+  "locale": "en-MA",
+  "canonicalMap": "UX-CONTRACT.md",
+  "ownership": { "Select/Listbox": "native", "Date": "native" }
+}
