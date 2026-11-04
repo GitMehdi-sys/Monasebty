@@ -1,0 +1,14 @@
+{
+  "name": "eazywed-local",
+  "private": true,
+  "scripts": {
+    "install:all": "npm --prefix backend ci && npm --prefix eazywed ci",
+    "dev": "concurrently --kill-others-on-fail \"npm --prefix backend run dev\" \"npm --prefix eazywed run dev\"",
+    "start": "concurrently --kill-others-on-fail \"npm --prefix backend start\" \"npm --prefix eazywed run dev\"",
+    "build": "npm --prefix eazywed run build",
+    "lint": "npm --prefix eazywed run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
