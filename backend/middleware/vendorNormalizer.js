@@ -14,7 +14,12 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, "../uploads"))
   },
   filename: function (req, file, cb) {
-    const uniqueFilename = `${uuidv4()}-${file.originalname}`
+    const extensionByMimeType = {
+      "image/jpeg": ".jpg",
+      "image/jpg": ".jpg",
+      "image/png": ".png",
+    }
+    const uniqueFilename = `${uuidv4()}${extensionByMimeType[file.mimetype] || ""}`
     cb(null, uniqueFilename)
   },
 })
@@ -97,7 +102,8 @@ export const normalizeServiceData = (req, res, next) => {
         ? req.body.packageInclusions
         : [req.body.packageInclusions]
 
-      for (let i = 0; i < names.length; i++) {
+      const packageCount = Math.min(names.length, prices.length, inclusions.length, 5)
+      for (let i = 0; i < packageCount; i++) {
         if (names[i] && prices[i]) {
           pricing_packages.push({
             name: names[i],
@@ -344,7 +350,6 @@ export const normalizeVendorRequest = (req, res, next) => {
       req.normalizedBody = req.body
     }
 
-    console.log("Vendor Normalized Body:", req.normalizedBody)
     next()
   } catch (error) {
     console.error("Vendor request normalization error:", error)

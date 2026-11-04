@@ -1160,7 +1160,6 @@ export const removeEstimation = async (req, res) => {
 
 
 export const createBooking = async (req, res) => {
-  console.log("createBooking called with payload:", req.body);
   const userId = req.user.id;
   const { service_id, package_id, card_template_id, date_time, quantity = 1, end_date } = req.body;
 

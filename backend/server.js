@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import { PORT, NODE_ENV, FRONTEND_URL, DEMO_MODE } from "./config/env.js";
+import { PORT, NODE_ENV, FRONTEND_URL, DEMO_MODE, JWT_SECRET } from "./config/env.js";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
@@ -20,6 +20,7 @@ import Booking from "./models/Booking.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import { rejectMongoOperators } from "./middleware/requestSecurity.js";
 
 dotenv.config();
 
@@ -41,8 +42,11 @@ async function startServer() {
     app.use(cors({ origin: FRONTEND_URL, credentials: true }));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    app.use(cookieParser());
+    // Keep signed cookies verifiable if they are introduced; JWTs are still
+    // independently verified by the auth middleware before authorization.
+    app.use(cookieParser(JWT_SECRET));
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
+    app.use(rejectMongoOperators);
 
     // Ensure uploads directory exists
     const __filename = fileURLToPath(import.meta.url);

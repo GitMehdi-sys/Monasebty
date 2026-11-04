@@ -4,6 +4,7 @@ import Service from "../models/Service.js";
 import CardTemplate from "../models/CardTemplate.js";
 import Recommendation from "../models/Recommendation.js";
 import Review from "../models/Review.js";
+import { boundedPositiveInt, escapeRegex } from "../middleware/requestSecurity.js";
 import ContactMessage from "../models/ContactMessage.js"; 
 import { getPersonalizedRecommendations, getPopularRecommendations } from "../utils/recommendationEngine.js";
 import { generateWhatsAppLink } from "../utils/whatsapp.js";
@@ -96,8 +97,10 @@ export const getSlidersByCategory = async (req, res) => {
 
 export const getDiscountedServices = async (req, res) => {
   try {
-    const { page = 1, limit = 10, city, budgetMin, budgetMax } = req.query;
-    const skip = (page - 1) * parseInt(limit);
+    const { city, budgetMin, budgetMax } = req.query;
+    const page = boundedPositiveInt(req.query.page, 1, 100000);
+    const limit = boundedPositiveInt(req.query.limit, 10, 100);
+    const skip = (page - 1) * limit;
 
     const query = { discount: { $gt: 0 }, status: "published" };
     if (city) query.city = city;
@@ -110,15 +113,15 @@ export const getDiscountedServices = async (req, res) => {
     const total = await Service.countDocuments(query);
     const services = await Service.find(query)
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(limit);
 
     const formattedServices = services.map(formatService);
 
     return res.status(200).json(
       formatResponse(formattedServices, {
         total,
-        page: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
+        page,
+        pages: Math.ceil(total / limit),
       })
     );
   } catch (error) {
@@ -128,14 +131,16 @@ export const getDiscountedServices = async (req, res) => {
 
 export const searchServices = async (req, res) => {
   try {
-    const { query, page = 1, limit = 10, city, category } = req.query;
+    const { query, city, category } = req.query;
+    const page = boundedPositiveInt(req.query.page, 1, 100000);
+    const limit = boundedPositiveInt(req.query.limit, 10, 100);
 
     if (!query) {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const skip = (page - 1) * parseInt(limit);
-    const searchRegex = new RegExp(query, "i");
+    const skip = (page - 1) * limit;
+    const searchRegex = new RegExp(escapeRegex(query), "i");
 
     const serviceQuery = {
       status: "published",
@@ -151,8 +156,8 @@ export const searchServices = async (req, res) => {
     if (city) cardQuery.city = city;
 
     const [services, cards, totalServices, totalCards] = await Promise.all([
-      Service.find(serviceQuery).skip(skip).limit(parseInt(limit)),
-      CardTemplate.find(cardQuery).skip(skip).limit(parseInt(limit)),
+      Service.find(serviceQuery).skip(skip).limit(limit),
+      CardTemplate.find(cardQuery).skip(skip).limit(limit),
       Service.countDocuments(serviceQuery),
       CardTemplate.countDocuments(cardQuery),
     ]);
@@ -164,8 +169,8 @@ export const searchServices = async (req, res) => {
     return res.status(200).json(
       formatResponse([...formattedServices, ...formattedCards], {
         total,
-        page: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
+        page,
+        pages: Math.ceil(total / limit),
       })
     );
   } catch (error) {
