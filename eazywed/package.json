@@ -17,7 +17,7 @@
     "bootstrap": "^5.3.3",
     "cloudinary": "^2.6.0",
     "fabric": "^6.6.1",
-    "js-cookie": "^3.0.5",
+    "js-cookie": "^3.0.8",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "react": "^19.0.0",
