@@ -32,6 +32,16 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 
+const requireTrustedOrigin = (req, res, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+
+  const origin = req.get("origin");
+  if (origin !== FRONTEND_URL) {
+    return res.status(403).json({ message: "Cross-site request rejected" });
+  }
+  next();
+};
+
 async function startServer() {
   try {
     const isDemoMode = DEMO_MODE === "true";
@@ -46,6 +56,7 @@ async function startServer() {
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
     app.use(mongoSanitize({ replaceWith: "_" }));
+    app.use(requireTrustedOrigin);
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
 
     // Ensure uploads directory exists
