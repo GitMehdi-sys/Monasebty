@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import mongoose from "mongoose";
 import { PORT, NODE_ENV, FRONTEND_URL, DEMO_MODE } from "./config/env.js";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.js";
@@ -22,6 +24,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 
 dotenv.config();
+mongoose.set("sanitizeFilter", true);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -42,6 +45,7 @@ async function startServer() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
+    app.use(mongoSanitize({ replaceWith: "_" }));
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
 
     // Ensure uploads directory exists

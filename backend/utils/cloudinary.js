@@ -126,12 +126,6 @@ export const uploadCardImage = async (image) => {
       else if (image.buffer && Buffer.isBuffer(image.buffer)) {
         base64Image = `data:${mimetype || 'image/png'};base64,${image.buffer.toString("base64")}`
       }
-      // If image is a temp file path
-      else if (image.tempFilePath) {
-        const fs = await import("fs")
-        const data = fs.readFileSync(image.tempFilePath)
-        base64Image = `data:${mimetype || 'image/png'};base64,${data.toString("base64")}`
-      } 
       // Try to handle if it's a blob or file object from frontend
       else if (image instanceof Blob || image instanceof File) {
         const arrayBuffer = await image.arrayBuffer();

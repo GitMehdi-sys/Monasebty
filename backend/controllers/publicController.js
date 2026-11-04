@@ -15,6 +15,8 @@ const formatResponse = (data, pagination = null) => {
   return pagination ? { data, pagination } : { data };
 };
 
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const handleError = (res, error, customMessage = "Server error") => {
   console.error(`${customMessage}:`, error);
   if (error instanceof mongoose.Error.CastError) {
@@ -135,7 +137,7 @@ export const searchServices = async (req, res) => {
     }
 
     const skip = (page - 1) * parseInt(limit);
-    const searchRegex = new RegExp(query, "i");
+    const searchRegex = new RegExp(escapeRegex(query), "i");
 
     const serviceQuery = {
       status: "published",

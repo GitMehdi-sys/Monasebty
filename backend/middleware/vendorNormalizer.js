@@ -97,10 +97,10 @@ export const normalizeServiceData = (req, res, next) => {
         ? req.body.packageInclusions
         : [req.body.packageInclusions]
 
-      for (let i = 0; i < names.length; i++) {
-        if (names[i] && prices[i]) {
+      for (const [i, name] of names.slice(0, 20).entries()) {
+        if (name && prices[i]) {
           pricing_packages.push({
-            name: names[i],
+            name,
             price: Number(prices[i]),
             inclusions: inclusions[i] || "",
           })
@@ -344,7 +344,6 @@ export const normalizeVendorRequest = (req, res, next) => {
       req.normalizedBody = req.body
     }
 
-    console.log("Vendor Normalized Body:", req.normalizedBody)
     next()
   } catch (error) {
     console.error("Vendor request normalization error:", error)
