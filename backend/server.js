@@ -22,7 +22,7 @@ import Booking from "./models/Booking.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { createSameOriginGuard, rejectMongoOperators } from "./middleware/requestSecurity.js";
+import { rejectMongoOperators } from "./middleware/requestSecurity.js";
 
 dotenv.config();
 mongoose.set("sanitizeFilter", true);

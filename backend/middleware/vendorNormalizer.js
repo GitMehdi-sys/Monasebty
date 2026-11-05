@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
       "image/jpg": ".jpg",
       "image/png": ".png",
     }
-    const uniqueFilename = `${randomUUID()}${extensionByMimeType[file.mimetype] || ""}`
+    const uniqueFilename = `${uuidv4()}${extensionByMimeType[file.mimetype] || ""}`
     cb(null, uniqueFilename)
   },
 })
