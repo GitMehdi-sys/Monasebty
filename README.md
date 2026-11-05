@@ -1,4 +1,4 @@
-# Monasebty (EazyWed) 💍
+# Monasebty 
 
 A modern, full-stack wedding planning & vendor marketplace platform. Monasebty connects couples with wedding service providers—venues, photographers, bridal makeup artists, henna artists, bridal wear, car rentals, and customizable wedding cards.
 
