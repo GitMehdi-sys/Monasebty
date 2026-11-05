@@ -10,8 +10,8 @@
     "test": "node --test"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Elmehdi Elmouate",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
