@@ -139,4 +139,6 @@ All database queries are sanitized against NoSQL operator injection using strict
 
 ## 📄 License
 
-ISC License.
+This project is licensed under the **PolyForm Noncommercial License 1.0.0** - see the [LICENSE](LICENSE) file for full legal terms.
+
+> **Commercial Use Restriction**: This software is strictly for noncommercial, research, and personal use only. Use primarily intended for or directed towards commercial advantage or monetary compensation is expressly prohibited without written permission from the copyright owner.
