@@ -37,7 +37,15 @@ const requireTrustedOrigin = (req, res, next) => {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
 
   const origin = req.get("origin");
-  if (origin !== FRONTEND_URL) {
+  const referer = req.get("referer");
+
+  // Allow requests that come from the trusted frontend URL.
+  // Check both Origin and Referer headers so the check works for
+  // browsers that omit Origin on same-site navigations.
+  const trustedOrigin = origin === FRONTEND_URL;
+  const trustedReferer = referer && referer.startsWith(FRONTEND_URL);
+
+  if (!trustedOrigin && !trustedReferer) {
     return res.status(403).json({ message: "Cross-site request rejected" });
   }
   next();

@@ -93,7 +93,7 @@ export const getVendorServiceById = async (req, res) => {
     const vendorId = req.user.id;
     const serviceId = req.params.serviceId;
 
-    const service = await Service.findOne({ _id: serviceId, vendor_id: vendorId });
+    const service = await Service.findOne({ _id: { $eq: serviceId }, vendor_id: { $eq: vendorId } });
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -146,7 +146,7 @@ export const updateService = async (req, res) => {
     const serviceId = req.params.serviceId;
     const updateData = req.normalizedBody;
 
-    const service = await Service.findOne({ _id: serviceId, vendor_id: vendorId });
+    const service = await Service.findOne({ _id: { $eq: serviceId }, vendor_id: { $eq: vendorId } });
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -166,7 +166,7 @@ export const updateService = async (req, res) => {
       updateData.status = "pending";
     }
 
-    const updatedService = await Service.findByIdAndUpdate(serviceId, updateData, { new: true, runValidators: true });
+    const updatedService = await Service.findByIdAndUpdate(String(serviceId), updateData, { new: true, runValidators: true });
 
     res.status(200).json({ message: "Service updated successfully", service: updatedService });
   } catch (error) {
@@ -180,7 +180,7 @@ export const deleteService = async (req, res) => {
     const vendorId = req.user.id;
     const serviceId = req.params.serviceId;
 
-    const service = await Service.findOne({ _id: serviceId, vendor_id: vendorId });
+    const service = await Service.findOne({ _id: { $eq: serviceId }, vendor_id: { $eq: vendorId } });
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -289,7 +289,7 @@ export const updateBookingStatus = async (req, res) => {
     session.startTransaction();
 
     try {
-      const booking = await Booking.findOne({ _id: bookingId, vendor_id: vendorId }).session(session);
+      const booking = await Booking.findOne({ _id: { $eq: bookingId }, vendor_id: { $eq: vendorId } }).session(session);
       if (!booking) {
         await session.abortTransaction();
         session.endSession();

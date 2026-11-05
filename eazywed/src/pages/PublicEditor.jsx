@@ -50,6 +50,9 @@ const PublicEditor = () => {
           await new Promise((resolve, reject) => {
             const script = document.createElement("script")
             script.src = "https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"
+            // SRI hash ensures the script content has not been tampered with
+            script.integrity = "sha512-CIfBMp7JiMQiK2dkYJAWFh3zcFLZGm6FTWyOxGFiNVl8hRw7OdNF20JNKzIjGEPMQMEqVN0dMJ2RJFU3ygFQ=="
+            script.crossOrigin = "anonymous"
             script.async = true
             script.onload = () => {
               fabric = window.fabric
