@@ -266,20 +266,7 @@ const CardEditor = () => {
 
   // Function to preload fonts for better font rendering
   const preloadFonts = (fontList) => {
-    fontList.forEach((fontName) => {
-      // Only load if not already loaded
-      if (!document.fonts.check(`12px "${fontName}"`)) {
-        const link = document.createElement("link")
-        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(" ", "+")}&display=swap`
-        link.rel = "stylesheet"
-        document.head.appendChild(link)
-
-        // For web fonts API
-        document.fonts.ready.then(() => {
-          console.log(`Font ${fontName} loaded successfully`)
-        })
-      }
-    })
+    setLoadedFonts((current) => [...new Set([...current, ...fontList.filter((font) => availableFonts.includes(font))])])
   }
 
   const initializeCanvas = () => {

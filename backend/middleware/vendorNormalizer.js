@@ -102,11 +102,10 @@ export const normalizeServiceData = (req, res, next) => {
         ? req.body.packageInclusions
         : [req.body.packageInclusions]
 
-      const packageCount = Math.min(names.length, prices.length, inclusions.length, 5)
-      for (let i = 0; i < packageCount; i++) {
-        if (names[i] && prices[i]) {
+      for (const [i, name] of names.slice(0, 20).entries()) {
+        if (name && prices[i]) {
           pricing_packages.push({
-            name: names[i],
+            name,
             price: Number(prices[i]),
             inclusions: inclusions[i] || "",
           })

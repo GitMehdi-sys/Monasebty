@@ -1,36 +1,36 @@
+"use client";
 
-
-
-"use client"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { Button } from "react-bootstrap"
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import pkFlag from "../assets/images/pk-flag.png"
-import onboardingImg from "../assets/images/onboarding.png"
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "react-bootstrap";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const pkFlag = "/morocco-flag.svg";
+import onboardingImg from "../assets/images/onboarding.png";
 // import "../styles/admin-auth.css"
 
 const AdminLogin = () => {
-  const [identifier, setIdentifier] = useState("+92")
-  const [password, setPassword] = useState("")
-  const { adminLogin, loading } = useAuth()
-  const navigate = useNavigate()
+  const [identifier, setIdentifier] = useState("+212");
+  const [password, setPassword] = useState("");
+  const { adminLogin, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const success = await adminLogin(identifier, password)
+    e.preventDefault();
+    const success = await adminLogin(identifier, password);
     if (success) {
-      navigate("/admin/dashboard", { replace: true })
+      navigate("/admin/dashboard", { replace: true });
     }
-  }
+  };
 
   return (
     <>
       <div className="main-container">
-        <div className="logo-onboarding" style={{ backgroundImage: `url(${onboardingImg})` }}>
+        <div
+          className="logo-onboarding"
+          style={{ backgroundImage: `url(${onboardingImg})` }}
+        >
           <h1 className="logo">EazyWed</h1>
         </div>
         <div className="sign-in-form">
@@ -39,7 +39,7 @@ const AdminLogin = () => {
             <h5>Admin Login</h5>
             <label htmlFor="identifier">Username or Phone *</label>
             <div className="phone-area">
-              <img src={pkFlag || "/placeholder.svg"} alt="Pakistan Flag" />
+              <img src={pkFlag || "/placeholder.svg"} alt="Morocco flag" />
               <input
                 type="text"
                 name="identifier"
@@ -80,7 +80,7 @@ const AdminLogin = () => {
       </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </>
-  )
-}
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;

@@ -1,0 +1,437 @@
+.ew-auth-page {
+  --auth-ink: var(--ew-ink, #183e35);
+  --auth-muted: var(--ew-muted, #687b73);
+  --auth-surface: var(--ew-surface, #f3f7f4);
+  --auth-border: var(--ew-border, #dce5df);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100dvh;
+  color: var(--auth-ink);
+  background: #fff;
+  font-family: "Manrope", sans-serif;
+}
+.ew-auth-story {
+  display: flex;
+  flex-direction: column;
+  padding: 44px 54px 32px;
+  background:
+    linear-gradient(180deg, rgba(13, 43, 33, 0.45), rgba(13, 43, 33, 0.86)),
+    url("/images/moroccan-wedding.jpg") center / cover;
+  color: #fff;
+}
+.ew-auth-brand {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -1.6px;
+}
+.ew-auth-brand:hover {
+  color: #e4dbc5;
+}
+.ew-auth-brand span {
+  color: #d8c495;
+  font-size: 22px;
+}
+.ew-auth-story-copy {
+  margin-block: auto;
+  padding: 90px 0;
+}
+.ew-auth-eyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  line-height: 1.8;
+  color: #e1e7df;
+}
+.ew-auth-story h1 {
+  font:
+    500 clamp(54px, 5.2vw, 84px) / 1.03 "Cormorant Garamond",
+    Georgia,
+    serif;
+  letter-spacing: -2px;
+  margin: 26px 0;
+}
+.ew-auth-story h1 em {
+  color: #e4d4b1;
+  font-weight: 400;
+}
+.ew-auth-story-copy p {
+  font-size: 14px;
+  line-height: 1.85;
+  max-width: 350px;
+  color: #e5ebe7;
+}
+.ew-auth-story-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid #ffffff38;
+  padding-top: 22px;
+  color: #e4ebe6;
+}
+.ew-auth-story-bottom > span:last-child {
+  color: #d8c495;
+  font-size: 22px;
+}
+.ew-auth-form-panel {
+  padding: 38px clamp(28px, 5.5vw, 92px) 26px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ew-auth-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--auth-muted);
+  min-height: 44px;
+}
+.ew-auth-back:hover {
+  color: var(--auth-ink);
+}
+.ew-auth-form-wrap {
+  width: 100%;
+  max-width: 430px;
+  margin: auto;
+  padding-block: 42px;
+}
+.ew-auth-kicker {
+  display: block;
+  color: var(--auth-muted);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.ew-auth-form-wrap h2 {
+  font:
+    500 clamp(42px, 3.4vw, 56px) / 1.08 "Cormorant Garamond",
+    Georgia,
+    serif;
+  letter-spacing: -1.3px;
+  margin: 16px 0;
+}
+.ew-auth-intro {
+  color: var(--auth-muted);
+  line-height: 1.8;
+  font-size: 13px;
+  margin: 0 0 28px;
+}
+.ew-auth-notice {
+  background: var(--auth-surface);
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 26px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.ew-auth-notice strong {
+  font-size: 12px;
+  color: var(--auth-ink);
+}
+.ew-auth-notice p {
+  color: var(--auth-muted);
+  margin: 5px 0 9px;
+}
+.ew-auth-notice a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  text-underline-offset: 4px;
+  color: var(--auth-ink);
+}
+.ew-auth-form {
+  width: 100%;
+}
+.ew-auth-field {
+  margin-bottom: 22px;
+}
+.ew-auth-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 9px;
+  color: var(--auth-ink);
+}
+.ew-auth-field input {
+  width: 100%;
+  min-height: 52px;
+  color: var(--auth-ink);
+  border: 1px solid var(--auth-border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 13px 16px;
+  font: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+.ew-auth-field input:focus {
+  outline: none;
+  border-color: var(--auth-ink);
+  box-shadow: 0 0 0 3px #183e3518;
+}
+.ew-auth-field input[aria-invalid="true"] {
+  border-color: #a63838;
+}
+.ew-auth-field input:disabled {
+  background: var(--auth-surface);
+  color: var(--auth-muted);
+}
+.ew-auth-help {
+  font-size: 11px;
+  color: var(--auth-muted);
+  margin: 8px 0 0;
+  line-height: 1.65;
+}
+.ew-auth-error {
+  font-size: 12px;
+  color: #963a32;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+.ew-auth-form-error {
+  padding: 14px;
+  border: 1px solid #e7beb7;
+  border-radius: 6px;
+  background: #fff6f4;
+  margin: 0 0 20px;
+}
+.ew-auth-submit {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 52px;
+  border: 1px solid var(--auth-ink);
+  border-radius: 6px;
+  background: var(--auth-ink);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 14px 20px;
+  transition:
+    background 0.18s,
+    transform 0.18s;
+  cursor: pointer;
+}
+.ew-auth-submit:hover:not(:disabled) {
+  background: #29594b;
+}
+.ew-auth-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.ew-auth-submit:disabled {
+  background: #e5ece7;
+  border-color: #e5ece7;
+  color: #586d62;
+  cursor: not-allowed;
+}
+.ew-auth-reassurance {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--auth-muted);
+  margin-top: 13px;
+}
+.ew-auth-switch {
+  font-size: 12px;
+  margin: 30px 0 24px;
+  text-align: center;
+  color: var(--auth-muted);
+}
+.ew-auth-switch a {
+  color: var(--auth-ink);
+  font-weight: 700;
+  text-underline-offset: 4px;
+  margin-left: 4px;
+}
+.ew-auth-vendor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--auth-border);
+  padding-top: 22px;
+  font-size: 10px;
+  color: var(--auth-muted);
+}
+.ew-auth-vendor a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--auth-ink);
+  min-height: 44px;
+}
+.ew-auth-bottom-note {
+  display: block;
+  text-align: center;
+  color: var(--auth-muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.ew-auth-page a:focus-visible,
+.ew-auth-page button:focus-visible,
+.ew-auth-modal button:focus-visible {
+  outline: 3px solid #b89b60;
+  outline-offset: 4px;
+}
+.ew-auth-modal {
+  font-family: "Manrope", sans-serif;
+  color: var(--ew-ink, #183e35);
+}
+.ew-auth-modal .modal-content {
+  border: 1px solid var(--ew-border, #dce5df);
+  border-radius: 14px;
+}
+.ew-auth-modal .modal-header {
+  border: none;
+  padding: 26px 28px 4px;
+}
+.ew-auth-modal .modal-title {
+  font:
+    500 34px / 1.1 "Cormorant Garamond",
+    Georgia,
+    serif;
+}
+.ew-auth-modal .modal-body {
+  padding: 16px 28px 28px;
+}
+.ew-auth-modal .modal-body > p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ew-muted, #687b73);
+  margin-bottom: 24px;
+}
+.ew-auth-code-control {
+  position: relative;
+}
+.ew-auth-code-control input {
+  padding-right: 54px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.22em;
+}
+.ew-auth-code-control button {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ew-ink, #183e35);
+  cursor: pointer;
+}
+.ew-auth-change-number {
+  display: block;
+  margin: 10px auto 0;
+  background: transparent;
+  border: none;
+  color: var(--ew-ink, #183e35);
+  font: inherit;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 10px 0;
+  min-height: 44px;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .ew-auth-story {
+    padding: 34px 30px 26px;
+  }
+  .ew-auth-story h1 {
+    font-size: 58px;
+  }
+  .ew-auth-form-panel {
+    padding-inline: 30px;
+  }
+}
+@media (max-width: 680px) {
+  .ew-auth-page {
+    display: flex;
+    flex-direction: column;
+  }
+  .ew-auth-story {
+    min-height: 240px;
+    padding: 25px 25px 30px;
+    background-position: center 48%;
+  }
+  .ew-auth-brand {
+    font-size: 25px;
+  }
+  .ew-auth-story-copy {
+    padding: 35px 0 0;
+  }
+  .ew-auth-eyebrow {
+    font-size: 8px;
+  }
+  .ew-auth-story h1 {
+    font-size: 39px;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin: 12px 0 0;
+  }
+  .ew-auth-story h1 br {
+    display: none;
+  }
+  .ew-auth-story h1 em {
+    display: block;
+  }
+  .ew-auth-story-copy p,
+  .ew-auth-story-bottom {
+    display: none;
+  }
+  .ew-auth-form-panel {
+    padding: 16px 25px 22px;
+  }
+  .ew-auth-form-wrap {
+    padding-block: 26px 32px;
+  }
+  .ew-auth-form-wrap h2 {
+    font-size: 40px;
+    max-width: 320px;
+  }
+  .ew-auth-intro {
+    font-size: 12px;
+  }
+  .ew-auth-field input {
+    font-size: 16px;
+  }
+  .ew-auth-back {
+    font-size: 11px;
+  }
+  .ew-auth-modal .modal-header {
+    padding: 22px 22px 4px;
+  }
+  .ew-auth-modal .modal-body {
+    padding: 16px 22px 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ew-auth-page *,
+  .ew-auth-modal * {
+    transition: none !important;
+  }
+}
