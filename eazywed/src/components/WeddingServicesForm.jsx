@@ -10,7 +10,7 @@ import "../styles/card-form.css";
 import axios from "axios";
 
 const WeddingServicesForm = () => {
-  const { user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const isEditMode = !!serviceId;
