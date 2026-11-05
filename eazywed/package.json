@@ -16,7 +16,7 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "cloudinary": "^2.6.0",
-    "fabric": "^6.6.1",
+    "fabric": "^7.4.0",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
