@@ -154,8 +154,30 @@ export const updateCardTemplate = async (req, res) => {
       console.log("Setting card status to pending due to significant changes")
     }
 
+    const safeUpdate = {}
+    const allowedKeys = [
+      "type",
+      "price_per_card",
+      "quantity_available",
+      "city",
+      "name",
+      "format",
+      "design_time",
+      "description",
+      "settings",
+      "front_image",
+      "status",
+      "gallery",
+      "dimensions",
+    ]
+    for (const key of allowedKeys) {
+      if (updateData[key] !== undefined) {
+        safeUpdate[key] = updateData[key]
+      }
+    }
+
     const updatedCard = await CardTemplate.findByIdAndUpdate(String(cardId), 
-      updateData, 
+      { $set: safeUpdate }, 
       { 
         new: true,
         runValidators: true
