@@ -141,6 +141,14 @@ export const searchServices = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
+    if (city !== undefined && typeof city !== "string") {
+      return res.status(400).json({ message: "Invalid city filter" });
+    }
+
+    if (category !== undefined && typeof category !== "string") {
+      return res.status(400).json({ message: "Invalid category filter" });
+    }
+
     const skip = (page - 1) * parseInt(limit);
     const searchRegex = new RegExp(escapeRegex(query), "i");
 
@@ -148,14 +156,14 @@ export const searchServices = async (req, res) => {
       status: "published",
       $or: [{ name: searchRegex }, { description: searchRegex }],
     };
-    if (city) serviceQuery.city = city;
-    if (category) serviceQuery.category = category;
+    if (city) serviceQuery.city = { $eq: city };
+    if (category) serviceQuery.category = { $eq: category };
 
     const cardQuery = {
       status: "published",
       $or: [{ description: searchRegex }],
     };
-    if (city) cardQuery.city = city;
+    if (city) cardQuery.city = { $eq: city };
 
     const [services, cards, totalServices, totalCards] = await Promise.all([
       Service.find(serviceQuery).skip(skip).limit(limit),
