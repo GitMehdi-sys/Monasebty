@@ -164,13 +164,16 @@ const VendorSignup = () => {
                 onClick={() => document.getElementById("brand_icon").click()}
               >
                 <i className="fas fa-cloud-upload-alt"></i>
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: brandIcon
-                      ? `Selected: ${brandIcon.name}`
-                      : "Drag & drop your image here or <span>click to upload</span>",
-                  }}
-                />
+                <p>
+                  {brandIcon ? (
+                    `Selected: ${brandIcon.name}`
+                  ) : (
+                    <>
+                      Drag &amp; drop your image here or{" "}
+                      <span>click to upload</span>
+                    </>
+                  )}
+                </p>
               </div>
               <input
                 type="file"
