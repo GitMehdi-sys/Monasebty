@@ -105,7 +105,7 @@ export const getDiscountedServices = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const query = { discount: { $gt: 0 }, status: "published" };
-    if (city) query.city = city;
+    if (city) query.city = { $eq: city };
     if (budgetMin || budgetMax) {
       query["pricing_packages.price"] = {};
       if (budgetMin) query["pricing_packages.price"].$gte = Number(budgetMin);
@@ -148,14 +148,14 @@ export const searchServices = async (req, res) => {
       status: "published",
       $or: [{ name: searchRegex }, { description: searchRegex }],
     };
-    if (city) serviceQuery.city = city;
-    if (category) serviceQuery.category = category;
+    if (city) serviceQuery.city = { $eq: city };
+    if (category) serviceQuery.category = { $eq: category };
 
     const cardQuery = {
       status: "published",
       $or: [{ description: searchRegex }],
     };
-    if (city) cardQuery.city = city;
+    if (city) cardQuery.city = { $eq: city };
 
     const [services, cards, totalServices, totalCards] = await Promise.all([
       Service.find(serviceQuery).skip(skip).limit(limit),
