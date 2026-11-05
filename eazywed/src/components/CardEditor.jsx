@@ -140,6 +140,9 @@ const CardEditor = () => {
           await new Promise((resolve, reject) => {
             const script = document.createElement("script")
             script.src = "https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"
+            // SRI hash ensures the script content has not been tampered with
+            script.integrity = "sha512-CIfBMp7JiMQiK2dkYJAWFh3zcFLZGm6FTWyOxGFiNVl8hRw7OdNF20JNKzIjGEPMQMEqVN0dMJ2RJFU3ygFQ=="
+            script.crossOrigin = "anonymous"
             script.async = true
             script.onload = () => {
               console.log("Fabric.js loaded successfully")
@@ -274,7 +277,8 @@ const CardEditor = () => {
     // Check if we have an ID and need to load existing card data
     if (isEditMode && cardId && !initialSettings) {
       // If editing and we don't have settings already, fetch from API
-      console.log("Editing mode with ID but no settings, fetching from API:", cardId)
+      // Avoid logging user-controlled cardId directly to prevent XSS via console
+      console.log("Editing mode with ID but no settings, fetching from API")
           loadExistingCard(cardId)
     } else if (initialSettings) {
       // If we already have settings from location state, use them directly

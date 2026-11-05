@@ -105,10 +105,12 @@ export const uploadCardImage = async (image) => {
       if (image.mimetype) {
         mimetype = image.mimetype;
       } else if (image.originalname) {
-        // Try to determine from filename if available
-        const ext = image.originalname.split('.').pop().toLowerCase();
-        if (ext === 'jpg' || ext === 'jpeg') mimetype = 'image/jpeg';
-        else if (ext === 'png') mimetype = 'image/png';
+        // Sanitize extension: extract only the final extension after the last dot,
+        // allow only known safe image extensions to prevent path injection.
+        const rawExt = String(image.originalname).split(".").pop().toLowerCase();
+        const safeExtMap = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png" };
+        const safeMime = safeExtMap[rawExt];
+        if (safeMime) mimetype = safeMime;
       }
 
       // Check file format if mimetype is available

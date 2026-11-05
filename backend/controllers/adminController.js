@@ -43,10 +43,10 @@ export const requestOtp = async (req, res) => {
   if (!phone) return res.status(400).json({ message: "Phone is required" })
 
   try {
-    const admin = await Admin.findOne({ phone })
+    const admin = await Admin.findOne({ phone: { $eq: phone } })
     if (!admin) return res.status(404).json({ message: "Admin not found" })
 
-    const otpRecord = await OTP.findOne({ phone, role: "admin" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, role: "admin" })
     const now = new Date()
     if (otpRecord && otpRecord.requestCount >= 5) {
       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
@@ -62,7 +62,7 @@ export const requestOtp = async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await OTP.findOneAndUpdate(
-      { phone, role: "admin" },
+      { phone: { $eq: phone }, role: "admin" },
       {
         otpCode: otp,
         expiresAt,
@@ -87,7 +87,7 @@ export const verifyOtp = async (req, res) => {
   if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" })
 
   try {
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "admin" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, otpCode: { $eq: otp }, role: "admin" })
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" })
     }
@@ -129,7 +129,7 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or unverified OTP" })
     }
 
-    const admin = await Admin.findOne({ phone: otpRecord.phone })
+    const admin = await Admin.findOne({ phone: { $eq: otpRecord.phone } })
     if (!admin) return res.status(404).json({ message: "Admin not found" })
 
     admin.password = await bcrypt.hash(newPassword, 10)
@@ -161,7 +161,7 @@ export const approveVendor = async (req, res) => {
   const { userId } = req.body
 
   try {
-    const user = await User.findById(userId)
+    const user = await User.findById(String(userId))
     if (!user) return res.status(404).json({ message: "User not found" })
     if (user.vendorRequest.status !== "pending") {
       return res.status(400).json({ message: "No pending vendor request" })
@@ -186,7 +186,7 @@ export const rejectVendor = async (req, res) => {
   const { userId } = req.body
 
   try {
-    const user = await User.findById(userId)
+    const user = await User.findById(String(userId))
     if (!user) return res.status(404).json({ message: "User not found" })
     if (user.vendorRequest.status !== "pending") {
       return res.status(400).json({ message: "No pending vendor request" })
