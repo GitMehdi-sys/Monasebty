@@ -4,7 +4,7 @@ import Service from "../models/Service.js";
 import CardTemplate from "../models/CardTemplate.js";
 import Recommendation from "../models/Recommendation.js";
 import Review from "../models/Review.js";
-import { boundedPositiveInt, escapeRegex } from "../middleware/requestSecurity.js";
+import { boundedPositiveInt, escapeRegex as escapeSearchRegex } from "../middleware/requestSecurity.js";
 import ContactMessage from "../models/ContactMessage.js"; 
 import { getPersonalizedRecommendations, getPopularRecommendations } from "../utils/recommendationEngine.js";
 import { generateWhatsAppLink } from "../utils/whatsapp.js";
@@ -140,7 +140,7 @@ export const searchServices = async (req, res) => {
     }
 
     const skip = (page - 1) * limit;
-    const searchRegex = new RegExp(escapeRegex(query), "i");
+    const searchRegex = new RegExp(escapeSearchRegex(query), "i");
 
     const serviceQuery = {
       status: "published",

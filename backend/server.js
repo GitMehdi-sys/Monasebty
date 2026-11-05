@@ -20,7 +20,7 @@ import Booking from "./models/Booking.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { rejectMongoOperators } from "./middleware/requestSecurity.js";
+import { createSameOriginGuard, rejectMongoOperators } from "./middleware/requestSecurity.js";
 
 dotenv.config();
 
@@ -45,6 +45,7 @@ async function startServer() {
     // Keep signed cookies verifiable if they are introduced; JWTs are still
     // independently verified by the auth middleware before authorization.
     app.use(cookieParser(JWT_SECRET));
+    app.use(createSameOriginGuard(FRONTEND_URL.split(",").map((origin) => origin.trim())));
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
     app.use(rejectMongoOperators);
 
