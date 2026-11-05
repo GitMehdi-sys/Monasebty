@@ -1,5 +1,5 @@
 import multer from "multer"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 import path from "path"
 import { fileURLToPath } from "url"
 import { dirname } from "path"
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
       "image/jpg": ".jpg",
       "image/png": ".png",
     }
-    const uniqueFilename = `${uuidv4()}${extensionByMimeType[file.mimetype] || ""}`
+    const uniqueFilename = `${randomUUID()}${extensionByMimeType[file.mimetype] || ""}`
     cb(null, uniqueFilename)
   },
 })
