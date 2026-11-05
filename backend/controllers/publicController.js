@@ -16,8 +16,6 @@ const formatResponse = (data, pagination = null) => {
   return pagination ? { data, pagination } : { data };
 };
 
-const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 const handleError = (res, error, customMessage = "Server error") => {
   console.error(`${customMessage}:`, error);
   if (error instanceof mongoose.Error.CastError) {
@@ -69,7 +67,7 @@ export const getSlidersByCategory = async (req, res) => {
     let cards = [];
 
     const baseQuery = { status: "published" };
-    if (city) baseQuery.city = city;
+    if (city) baseQuery.city = { $eq: city };
 
     if (category === "Recommendations") {
       const recommendations = await Recommendation.find()
@@ -105,7 +103,7 @@ export const getDiscountedServices = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const query = { discount: { $gt: 0 }, status: "published" };
-    if (city) query.city = city;
+    if (city) query.city = { $eq: city };
     if (budgetMin || budgetMax) {
       query["pricing_packages.price"] = {};
       if (budgetMin) query["pricing_packages.price"].$gte = Number(budgetMin);
@@ -141,6 +139,14 @@ export const searchServices = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
+    if (city !== undefined && typeof city !== "string") {
+      return res.status(400).json({ message: "Invalid city filter" });
+    }
+
+    if (category !== undefined && typeof category !== "string") {
+      return res.status(400).json({ message: "Invalid category filter" });
+    }
+
     const skip = (page - 1) * parseInt(limit);
     const searchRegex = new RegExp(escapeRegex(query), "i");
 
@@ -148,14 +154,14 @@ export const searchServices = async (req, res) => {
       status: "published",
       $or: [{ name: searchRegex }, { description: searchRegex }],
     };
-    if (city) serviceQuery.city = city;
-    if (category) serviceQuery.category = category;
+    if (city) serviceQuery.city = { $eq: city };
+    if (category) serviceQuery.category = { $eq: category };
 
     const cardQuery = {
       status: "published",
       $or: [{ description: searchRegex }],
     };
-    if (city) cardQuery.city = city;
+    if (city) cardQuery.city = { $eq: city };
 
     const [services, cards, totalServices, totalCards] = await Promise.all([
       Service.find(serviceQuery).skip(skip).limit(limit),
@@ -202,10 +208,10 @@ export const getServicesByCategory = async (req, res) => {
     const serviceQuery = { status: "published" };
     const cardQuery = { status: "published" };
 
-    if (!isCardCategory) serviceQuery.category = category;
+    if (!isCardCategory) serviceQuery.category = { $eq: category };
     if (city) {
-      serviceQuery.city = city;
-      cardQuery.city = city;
+      serviceQuery.city = { $eq: city };
+      cardQuery.city = { $eq: city };
     }
     if (budgetMin || budgetMax) {
       serviceQuery["pricing_packages.price"] = {};
@@ -216,7 +222,7 @@ export const getServicesByCategory = async (req, res) => {
       if (budgetMax) cardQuery.price_per_card.$lte = Number(budgetMax);
     }
     if (refundPolicy) {
-      serviceQuery["details.cancellation_policy"] = refundPolicy;
+      serviceQuery["details.cancellation_policy"] = { $eq: refundPolicy };
     }
 
     let services = [];
@@ -263,7 +269,7 @@ export const getDiscountedServicesByCategory = async (req, res) => {
     }
 
     const skip = (page - 1) * parseInt(limit);
-    const query = { category, discount: { $gt: 0 }, status: "published" };
+    const query = { category: { $eq: category }, discount: { $gt: 0 }, status: "published" };
 
     const [total, services] = await Promise.all([
       Service.countDocuments(query),

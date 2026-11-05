@@ -466,10 +466,10 @@ export const toggleUserBlock = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(String(userId));
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const blockedUser = await BlockedUsers.findOne({ userId });
+    const blockedUser = await BlockedUsers.findOne({ userId: { $eq: userId } });
 
     if (blockedUser) {
       await BlockedUsers.findByIdAndDelete(blockedUser._id);
@@ -688,7 +688,7 @@ export const submitReview = async (req, res) => {
       return res.status(400).json({ message: "Booking ID and rating are required" });
     }
 
-    const booking = await Booking.findOne({ _id: bookingId, user_id: userId });
+    const booking = await Booking.findOne({ _id: { $eq: bookingId }, user_id: { $eq: userId } });
     if (!booking) {
       return res.status(404).json({ message: "Booking not found or not authorized" });
     }
@@ -697,7 +697,7 @@ export const submitReview = async (req, res) => {
       return res.status(400).json({ message: "You can only review completed bookings with review allowed" });
     }
 
-    const existingReview = await Review.findOne({ booking_id: bookingId, user_id: userId });
+    const existingReview = await Review.findOne({ booking_id: { $eq: bookingId }, user_id: { $eq: userId } });
     if (existingReview) {
       return res.status(400).json({ message: "You have already reviewed this booking" });
     }
@@ -721,7 +721,7 @@ export const submitReview = async (req, res) => {
       const serviceReviews = await Review.find({ service_id: serviceId, isActive: true });
       const totalStars = serviceReviews.reduce((sum, review) => sum + review.stars, 0);
       const avgRating = totalStars / serviceReviews.length;
-      await Service.findByIdAndUpdate(serviceId, {
+      await Service.findByIdAndUpdate(String(serviceId), {
         avg_rating: avgRating,
         review_count: serviceReviews.length,
       });
@@ -729,7 +729,7 @@ export const submitReview = async (req, res) => {
       const cardReviews = await Review.find({ card_template_id: cardId, isActive: true });
       const totalStars = cardReviews.reduce((sum, review) => sum + review.stars, 0);
       const avgRating = totalStars / cardReviews.length;
-      await CardTemplate.findByIdAndUpdate(cardId, {
+      await CardTemplate.findByIdAndUpdate(String(cardId), {
         avg_rating: avgRating,
         review_count: cardReviews.length,
       });
@@ -760,7 +760,7 @@ export const cancelUserBooking = async (req, res) => {
     session.startTransaction();
 
     try {
-      const booking = await Booking.findOne({ _id: bookingId, user_id: userId, status: "pending" }).session(session);
+      const booking = await Booking.findOne({ _id: { $eq: bookingId }, user_id: { $eq: userId }, status: "pending" }).session(session);
       if (!booking) {
         await session.abortTransaction();
         session.endSession();
@@ -1100,7 +1100,7 @@ export const removeEstimation = async (req, res) => {
 
   try {
     // Validate estimation
-    const estimation = await Estimation.findOne({ _id: estimationId, userId });
+    const estimation = await Estimation.findOne({ _id: { $eq: estimationId }, userId: { $eq: userId } });
     if (!estimation) {
       return res.status(404).json({
         message: "Estimation not found or not authorized",
@@ -1186,7 +1186,7 @@ export const createBooking = async (req, res) => {
 
     try {
       if (service_id) {
-        const service = await Service.findById(service_id).populate("vendor_id").session(session);
+        const service = await Service.findById(String(service_id)).populate("vendor_id").session(session);
         if (!service) return res.status(404).json({ message: "Service not found" });
         if (service.status !== "published") return res.status(403).json({ message: "Service is not published" });
         if (!package_id) return res.status(400).json({ message: "Package ID is required for services" });
@@ -1203,9 +1203,9 @@ export const createBooking = async (req, res) => {
 
         // Check for existing booking for the same service and time
         const existingBooking = await Booking.findOne({
-          service_id,
-          user_id: userId,
-          date_time,
+          service_id: { $eq: service_id },
+          user_id: { $eq: userId },
+          date_time: { $eq: date_time },
           status: { $in: ["pending", "confirmed"] },
         });
         if (existingBooking) {
@@ -1231,7 +1231,7 @@ export const createBooking = async (req, res) => {
           quantity: service.category === "Wedding Venues" ? quantity : 1,
         });
       } else if (card_template_id) {
-        const card = await CardTemplate.findById(card_template_id).populate("vendor_id").session(session);
+        const card = await CardTemplate.findById(String(card_template_id)).populate("vendor_id").session(session);
         if (!card) return res.status(404).json({ message: "Card template not found" });
         if (card.status !== "published") return res.status(403).json({ message: "Card template is not published" });
         if (card.quantity_available === 0) {
@@ -1271,7 +1271,7 @@ export const createBooking = async (req, res) => {
       await session.commitTransaction();
 
       const vendor = await User.findById(vendor_id);
-      const user = await User.findById(userId);
+      const user = await User.findById(String(userId));
       if (vendor) {
         await sendOTP(vendor.phone, `A new booking has been requested by ${user.full_name}.`);
       }
@@ -1305,7 +1305,7 @@ export const convertEstimationToBookings = async (req, res) => {
 
   try {
     // Validate estimation
-    const estimation = await Estimation.findOne({ _id: estimationId, userId });
+    const estimation = await Estimation.findOne({ _id: { $eq: estimationId }, userId: { $eq: userId } });
     if (!estimation) {
       return res.status(404).json({
         message: "Estimation not found or you are not authorized",
@@ -1345,9 +1345,9 @@ export const convertEstimationToBookings = async (req, res) => {
 
         // Check for existing booking for the same service and time
         const existingBooking = await Booking.findOne({
-          service_id: service.serviceId,
-          user_id: userId,
-          date_time,
+          service_id: { $eq: service.serviceId },
+          user_id: { $eq: userId },
+          date_time: { $eq: date_time },
           status: { $in: ["pending", "confirmed"] },
         });
         if (existingBooking) {

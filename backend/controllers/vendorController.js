@@ -48,10 +48,10 @@ export const requestOtp = async (req, res) => {
   if (!phone) return res.status(400).json({ message: "Phone is required" });
 
   try {
-    const vendor = await User.findOne({ phone, role: "vendor" });
+    const vendor = await User.findOne({ phone: { $eq: phone }, role: "vendor" });
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
 
-    const otpRecord = await OTP.findOne({ phone, role: "vendor" });
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, role: "vendor" });
     const now = new Date();
     if (otpRecord && otpRecord.requestCount >= 5) {
       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000);
@@ -67,7 +67,7 @@ export const requestOtp = async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await OTP.findOneAndUpdate(
-      { phone, role: "vendor" },
+      { phone: { $eq: phone }, role: "vendor" },
       {
         otpCode: otp,
         expiresAt,
@@ -92,7 +92,7 @@ export const verifyOtp = async (req, res) => {
   if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" });
 
   try {
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "vendor" });
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, otpCode: { $eq: otp }, role: "vendor" });
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -134,7 +134,7 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or unverified OTP" });
     }
 
-    const vendor = await User.findOne({ phone: otpRecord.phone, role: "vendor" });
+    const vendor = await User.findOne({ phone: { $eq: otpRecord.phone }, role: "vendor" });
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
 
     vendor.password = await bcrypt.hash(newPassword, 10);

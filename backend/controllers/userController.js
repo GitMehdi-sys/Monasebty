@@ -14,13 +14,13 @@ export const signIn = async (req, res) => {
   if (!/^\+923[0-4][0-9]{8}$/.test(phone)) return res.status(400).json({ message: "Invalid Pakistani phone number" })
 
   try {
-    const user = await User.findOne({ phone })
+    const user = await User.findOne({ phone: { $eq: phone } })
     if (!user) return res.status(404).json({ message: "User not found" })
 
-    const isBlocked = await BlockedUsers.findOne({ phone })
+    const isBlocked = await BlockedUsers.findOne({ phone: { $eq: phone } })
     if (isBlocked) return res.status(403).json({ message: "User is blocked" })
 
-    const otpRecord = await OTP.findOne({ phone, role: "user" }) // Always use "user" role for OTP
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, role: "user" }) // Always use "user" role for OTP
     const now = new Date()
     if (otpRecord && otpRecord.requestCount >= 5) {
       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
@@ -36,7 +36,7 @@ export const signIn = async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await OTP.findOneAndUpdate(
-      { phone, role: "user" },
+      { phone: { $eq: phone }, role: "user" },
       {
         otpCode: otp,
         expiresAt,
@@ -61,10 +61,10 @@ export const verifySignInOtp = async (req, res) => {
   if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" })
 
   try {
-    const user = await User.findOne({ phone })
+    const user = await User.findOne({ phone: { $eq: phone } })
     if (!user) return res.status(404).json({ message: "User not found" })
 
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "user" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, otpCode: { $eq: otp }, role: "user" })
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" })
     }
@@ -105,10 +105,10 @@ export const signUp = async (req, res) => {
   if (!/^\+923[0-4][0-9]{8}$/.test(phone)) return res.status(400).json({ message: "Invalid Pakistani phone number" })
 
   try {
-    const existingUser = await User.findOne({ phone })
+    const existingUser = await User.findOne({ phone: { $eq: phone } })
     if (existingUser) return res.status(400).json({ message: "Phone already registered" })
 
-    const otpRecord = await OTP.findOne({ phone, role: "user" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, role: "user" })
     const now = new Date()
     if (otpRecord && otpRecord.requestCount >= 5) {
       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
@@ -124,7 +124,7 @@ export const signUp = async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await OTP.findOneAndUpdate(
-      { phone, role: "user" },
+      { phone: { $eq: phone }, role: "user" },
       {
         otpCode: otp,
         expiresAt,
@@ -149,7 +149,7 @@ export const verifySignUpOtp = async (req, res) => {
   if (!full_name || !phone || !otp) return res.status(400).json({ message: "Full name, phone, and OTP are required" })
 
   try {
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "user" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, otpCode: { $eq: otp }, role: "user" })
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" })
     }
@@ -210,10 +210,10 @@ export const registerVendor = async (req, res) => {
     return res.status(400).json({ message: "Brand icon must be JPEG, JPG, or PNG" })
 
   try {
-    const isBlocked = await BlockedUsers.findOne({ phone })
+    const isBlocked = await BlockedUsers.findOne({ phone: { $eq: phone } })
     if (isBlocked) return res.status(403).json({ message: "User is blocked" })
 
-    const user = await User.findOne({ phone })
+    const user = await User.findOne({ phone: { $eq: phone } })
     if (user) {
       if (user.vendorRequest.status === "pending")
         return res.status(400).json({ message: "Vendor request already pending" })
@@ -232,7 +232,7 @@ export const registerVendor = async (req, res) => {
       }
     }
 
-    const otpRecord = await OTP.findOne({ phone, role: "vendor" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, role: "vendor" })
     const now = new Date()
     if (otpRecord && otpRecord.requestCount >= 5) {
       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
@@ -248,7 +248,7 @@ export const registerVendor = async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await OTP.findOneAndUpdate(
-      { phone, role: "vendor" },
+      { phone: { $eq: phone }, role: "vendor" },
       {
         otpCode: otp,
         expiresAt,
@@ -261,7 +261,7 @@ export const registerVendor = async (req, res) => {
     )
 
     await sendOTP(phone, otp)
-    res.status(200).json({ message: "OTP sent successfully", phone, password, vendorRequest })
+    res.status(200).json({ message: "OTP sent successfully", phone, vendorRequest: { category: vendorRequest?.category } })
   } catch (error) {
     console.error("Vendor register error:", error)
     res.status(500).json({ message: "Server error" })
@@ -285,7 +285,7 @@ export const verifyVendorOtp = async (req, res) => {
   if (vendorRequest.terms_accepted !== true) return res.status(400).json({ message: "Terms must be accepted" })
 
   try {
-    const otpRecord = await OTP.findOne({ phone, otpCode: otp, role: "vendor" })
+    const otpRecord = await OTP.findOne({ phone: { $eq: phone }, otpCode: { $eq: otp }, role: "vendor" })
     if (!otpRecord || new Date() > otpRecord.expiresAt) {
       return res.status(400).json({ message: "Invalid or expired OTP" })
     }
@@ -318,7 +318,7 @@ export const verifyVendorOtp = async (req, res) => {
     otpRecord.verified = true
     await otpRecord.save()
 
-    let user = await User.findOne({ phone })
+    let user = await User.findOne({ phone: { $eq: phone } })
     const hashedPassword = await bcrypt.hash(password, 10)
     let brandIconUrl
 

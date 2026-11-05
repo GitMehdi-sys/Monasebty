@@ -68,7 +68,7 @@ export const getCardTemplateById = async (req, res) => {
     const vendorId = req.user.id
     const cardId = req.params.cardId
 
-    const card = await CardTemplate.findOne({ _id: cardId, vendor_id: vendorId })
+    const card = await CardTemplate.findOne({ _id: { $eq: cardId }, vendor_id: { $eq: vendorId } })
     if (!card) {
       return res.status(404).json({ message: "Card template not found" })
     }
@@ -88,7 +88,7 @@ export const updateCardTemplate = async (req, res) => {
 
     console.log(`Updating card ${cardId} with fields: ${Object.keys(updateData).join(", ")}`)
     
-    const card = await CardTemplate.findOne({ _id: cardId, vendor_id: vendorId })
+    const card = await CardTemplate.findOne({ _id: { $eq: cardId }, vendor_id: { $eq: vendorId } })
     if (!card) {
       console.log(`Card ${cardId} not found for vendor ${vendorId}`)
       return res.status(404).json({ message: "Card template not found" })
@@ -154,9 +154,30 @@ export const updateCardTemplate = async (req, res) => {
       console.log("Setting card status to pending due to significant changes")
     }
 
-    const updatedCard = await CardTemplate.findByIdAndUpdate(
-      cardId, 
-      updateData, 
+    const safeUpdate = {}
+    const allowedKeys = [
+      "type",
+      "price_per_card",
+      "quantity_available",
+      "city",
+      "name",
+      "format",
+      "design_time",
+      "description",
+      "settings",
+      "front_image",
+      "status",
+      "gallery",
+      "dimensions",
+    ]
+    for (const key of allowedKeys) {
+      if (updateData[key] !== undefined) {
+        safeUpdate[key] = updateData[key]
+      }
+    }
+
+    const updatedCard = await CardTemplate.findByIdAndUpdate(String(cardId), 
+      { $set: safeUpdate }, 
       { 
         new: true,
         runValidators: true
@@ -187,7 +208,7 @@ export const deleteCardTemplate = async (req, res) => {
     const vendorId = req.user.id
     const cardId = req.params.cardId
 
-    const card = await CardTemplate.findOne({ _id: cardId, vendor_id: vendorId })
+    const card = await CardTemplate.findOne({ _id: { $eq: cardId }, vendor_id: { $eq: vendorId } })
     if (!card) {
       return res.status(404).json({ message: "Card template not found" })
     }

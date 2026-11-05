@@ -1,5 +1,5 @@
 import multer from "multer"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 import path from "path"
 import { fileURLToPath } from "url"
 import { dirname } from "path"
@@ -93,16 +93,17 @@ export const normalizeServiceData = (req, res, next) => {
       working_days,
     } = req.body
 
-    // Process pricing packages
+    // Process pricing packages (cap at 20 to prevent loop-bound injection)
     let pricing_packages = []
     if (req.body.packageName) {
+      const MAX_PACKAGES = 20;
       const names = Array.isArray(req.body.packageName) ? req.body.packageName : [req.body.packageName]
       const prices = Array.isArray(req.body.packagePrice) ? req.body.packagePrice : [req.body.packagePrice]
       const inclusions = Array.isArray(req.body.packageInclusions)
         ? req.body.packageInclusions
         : [req.body.packageInclusions]
 
-      for (const [i, name] of names.slice(0, 20).entries()) {
+      for (const [i, name] of names.slice(0, MAX_PACKAGES).entries()) {
         if (name && prices[i]) {
           pricing_packages.push({
             name,
@@ -343,7 +344,15 @@ export const normalizeVendorRequest = (req, res, next) => {
       req.normalizedBody.vendorRequest = vendorRequest
 
       if (req.files?.brand_icon) {
-        req.normalizedBody.brand_icon = req.files.brand_icon
+        // Pass the file object reference without exposing raw binary data to logging.
+        // The actual buffer is accessed downstream only when needed for upload.
+        const icon = req.files.brand_icon;
+        req.normalizedBody.brand_icon = {
+          data: icon.data,
+          mimetype: icon.mimetype,
+          size: icon.size,
+          name: icon.name,
+        };
       }
     } else {
       req.normalizedBody = req.body
