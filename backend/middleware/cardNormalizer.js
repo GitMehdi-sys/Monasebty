@@ -34,8 +34,9 @@ export const normalizeCardRequest = (req, res, next) => {
       if (fields.settings) {
         try {
           const settingsType = typeof fields.settings;
-          const safeLength = settingsType === 'string' ? fields.settings.length : 'unknown';
-          console.log(`Processing settings (${settingsType}, length: ${safeLength})`);
+          const rawSettingsLength = settingsType === 'string' ? fields.settings.length : -1;
+          const safeLengthForLog = String(rawSettingsLength).replace(/[\r\n]/g, "");
+          console.log(`Processing settings (${settingsType}, length: ${safeLengthForLog})`);
           
           if (settingsType === 'string') {
             const testParse = JSON.parse(fields.settings);
