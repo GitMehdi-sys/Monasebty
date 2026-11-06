@@ -807,11 +807,9 @@ const CardEditor = () => {
         shape.set("_shape", "rect")
     }
 
-    if (shape) {
-      fabricCanvasRef.current.add(shape)
-      fabricCanvasRef.current.setActiveObject(shape)
-      fabricCanvasRef.current.renderAll()
-    }
+    fabricCanvasRef.current.add(shape)
+    fabricCanvasRef.current.setActiveObject(shape)
+    fabricCanvasRef.current.renderAll()
   }
 
   const handleSetBackgroundImage = (e) => {
