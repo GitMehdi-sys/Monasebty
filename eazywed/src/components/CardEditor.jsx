@@ -1527,7 +1527,7 @@ const CardEditor = () => {
       <nav className="editor-navbar">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">
-            EazyWed Card Editor
+            Monasebty Card Editor
           </a>
           <div className="editor-nav-actions">
             <button
