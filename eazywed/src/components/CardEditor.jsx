@@ -954,7 +954,7 @@ const CardEditor = () => {
 
   // Handle asset upload
   const handleAssetUpload = (e) => {
-    if (!e.target.files || !e.target.files.length === 0) return
+    if (!e.target.files || e.target.files.length === 0) return
 
     Array.from(e.target.files).forEach((file) => {
       // Check file size and type
