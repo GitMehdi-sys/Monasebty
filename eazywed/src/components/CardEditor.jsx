@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import "../styles/card-editor.css"
 import createAPI from "../utils/api"
+import { getCardTemplate, updateCardTemplate } from "../utils/cardTemplates"
 
 // Declare fabric as a global variable
 let fabric
@@ -493,7 +494,7 @@ const CardEditor = () => {
       console.log(`Loading card template with ID: ${id}`)
 
     try {
-      const response = await api.get(`/vendor/dashboard/cards/${id}`)
+      const response = await getCardTemplate(api, id)
       const card = response.data
 
       console.log("Card data loaded:", {
@@ -1457,9 +1458,9 @@ const CardEditor = () => {
       }
   
       let response
-      if (isEditMode && cardId) {
+      if (isEditMode) {
         console.log(`Updating existing card: ${cardId}`)
-        response = await api.put(`/vendor/dashboard/cards/${cardId}`, formData, apiConfig)
+        response = await updateCardTemplate(api, cardId, formData, apiConfig)
         toast.success("Card updated successfully")
       } else {
         console.log("Creating new card")
