@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import "../styles/card-editor.css"
@@ -12,7 +11,6 @@ import createAPI from "../utils/api"
 let fabric
 
 const CardEditor = () => {
-  const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [isLoading, setIsLoading] = useState(true)
@@ -20,8 +18,6 @@ const CardEditor = () => {
   const [cardData, setCardData] = useState({ city: "" })
   const [currentTool, setCurrentTool] = useState("select")
   const [selectedObject, setSelectedObject] = useState(null)
-  const [showPreview, setShowPreview] = useState(false)
-  const [previewImage, setPreviewImage] = useState("")
   const [initialSettings, setInitialSettings] = useState(null)
 
   const [isEditMode, setIsEditMode] = useState(false)
@@ -270,25 +266,6 @@ const CardEditor = () => {
   // Function to preload fonts for better font rendering
   const preloadFonts = (fontList) => {
     setLoadedFonts((current) => [...new Set([...current, ...fontList.filter((font) => availableFonts.includes(font))])])
-  }
-
-  const initializeCanvas = () => {
-    console.log("Initializing canvas...")
-    // Check if we have an ID and need to load existing card data
-    if (isEditMode && cardId && !initialSettings) {
-      // If editing and we don't have settings already, fetch from API
-      // Avoid logging user-controlled cardId directly to prevent XSS via console
-      console.log("Editing mode with ID but no settings, fetching from API")
-          loadExistingCard(cardId)
-    } else if (initialSettings) {
-      // If we already have settings from location state, use them directly
-      console.log("Using settings from location state for initialization")
-      setupCanvas(initialSettings)
-      } else {
-      // Create a new canvas with default settings
-      console.log("Creating new canvas with default settings")
-        setupCanvas()
-    }
   }
 
   // Setup canvas with existing settings if provided
@@ -952,7 +929,7 @@ const CardEditor = () => {
 
   // Handle asset upload
   const handleAssetUpload = (e) => {
-    if (!e.target.files || !e.target.files.length === 0) return
+    if (!e.target.files || e.target.files.length === 0) return
 
     Array.from(e.target.files).forEach((file) => {
       // Check file size and type
@@ -1314,24 +1291,6 @@ const CardEditor = () => {
       fabricCanvasRef.current.renderAll()
       // Clear the selected object reference
       setSelectedObject(null)
-    }
-  }
-
-  // Preview handler
-  const handlePreview = () => {
-    if (!fabricCanvasRef.current) return
-
-    try {
-      const dataURL = fabricCanvasRef.current.toDataURL({
-        format: "png",
-        quality: 1,
-      })
-
-      setPreviewImage(dataURL)
-      setShowPreview(true)
-    } catch (error) {
-      console.error("Error generating preview:", error)
-      toast.error("Failed to generate preview")
     }
   }
 
@@ -2069,23 +2028,6 @@ const CardEditor = () => {
         <div className="loading-overlay">
           <div className="spinner"></div>
           <p className="loading-text">Saving card template...</p>
-        </div>
-      )}
-
-      {showPreview && (
-        <div className="preview-modal">
-          <div className="preview-content">
-            <button className="preview-close" onClick={() => setShowPreview(false)}>
-              &times;
-            </button>
-            <h5>Card Preview</h5>
-            <div className="preview-image">
-              <img src={previewImage || "/placeholder.svg"} alt="Card Preview" />
-            </div>
-            <button className="btn btn-primary mt-3" onClick={() => setShowPreview(false)}>
-              Close Preview
-            </button>
-          </div>
         </div>
       )}
 
