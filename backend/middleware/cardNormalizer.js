@@ -2,7 +2,9 @@ export const normalizeCardRequest = (req, res, next) => {
   try {
     const contentType = req.headers["content-type"] || "";
     const safeContentType = String(contentType.split(';')[0]).replace(/[\r\n]/g, "");
-    console.log(`Card normalizer: ${req.method} ${req.path} (${safeContentType})`);
+    const safeMethod = String(req.method || "").replace(/[\r\n]/g, "");
+    const safePath = String(req.path || "").replace(/[\r\n]/g, "");
+    console.log(`Card normalizer: ${safeMethod} ${safePath} (${safeContentType})`);
 
     if (contentType.startsWith("multipart/form-data")) {
       const fields = req.body;
