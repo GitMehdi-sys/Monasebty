@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizeServiceRequest } from "../middleware/serviceNormalizer.js";
-import { normalizeVendorRequest, normalizeServiceData } from "../middleware/vendorNormalizer.js";
+import { normalizeVendorRequest } from "../middleware/vendorNormalizer.js";
 
 test("serviceNormalizer ignores unknown/prototype pollution fields in details", () => {
   const req = {
